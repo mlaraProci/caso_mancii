@@ -20,7 +20,7 @@ explore: carreras {}
 
 explore: inteligencias {}
 
-
+explore: areas_de_conocimiento {}
 
 ###############################################################
 explore: analysis_parameters {
