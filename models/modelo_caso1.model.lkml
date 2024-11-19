@@ -16,6 +16,8 @@ explore: personalidades {}
 
 explore: tipos_de_aprendizaje {}
 
+explore: carreras {}
+
 
 ###############################################################
 explore: analysis_parameters {
