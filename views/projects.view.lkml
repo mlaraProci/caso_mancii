@@ -7,6 +7,13 @@ view: projects {
     type: string
     sql: ${TABLE}.id ;;
   }
+
+  dimension: identify {
+    type: string
+    sql: HEX(${TABLE}.id) ;;
+    description: "ID en formato hexadecimal"
+  }
+
   dimension: client_id {
     type: string
     sql: ${TABLE}.client_id ;;

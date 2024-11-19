@@ -7,6 +7,7 @@ view: participants {
     type: string
     sql: ${TABLE}.id ;;
   }
+
   dimension: auth_id {
     type: string
     sql: ${TABLE}.auth_id ;;
@@ -54,14 +55,14 @@ view: participants {
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
-	id,
-	name,
-	answers.count,
-	attendent.count,
-	construct_metrics.count,
-	interaction_metrics.count,
-	socio_demographics.count
-	]
+  id,
+  name,
+  answers.count,
+  attendent.count,
+  construct_metrics.count,
+  interaction_metrics.count,
+  socio_demographics.count
+  ]
   }
 
 }
