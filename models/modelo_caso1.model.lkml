@@ -18,6 +18,9 @@ explore: tipos_de_aprendizaje {}
 
 explore: carreras {}
 
+explore: inteligencias {}
+
+
 
 ###############################################################
 explore: analysis_parameters {
