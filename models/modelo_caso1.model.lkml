@@ -33,6 +33,8 @@ explore: estadisticas_agregadas_para_carreras{}
 explore: estadisticas_agregadas_para_inteligencias {}
 
 explore: estadisticas_agregadas_para_areas_de_conocimiento {}
+
+explore: estadisticas_agregadas_para_valores {}
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {
