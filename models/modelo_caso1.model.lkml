@@ -24,6 +24,7 @@ explore: areas_de_conocimiento {}
 
 explore: valores {}
 
+explore: estadisticas_agregadas_para_personalidades {}
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {
