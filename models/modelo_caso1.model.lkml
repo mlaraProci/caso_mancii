@@ -22,6 +22,8 @@ explore: inteligencias {}
 
 explore: areas_de_conocimiento {}
 
+explore: valores {}
+
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {

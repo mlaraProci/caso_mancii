@@ -82,7 +82,7 @@ view: areas_de_conocimiento {
   measure: sociales {
     type: max
     sql: CASE WHEN ${kind} = 'sociales' THEN ${value} ELSE 0 END ;;
-    description: "Valor máximo del área de conocimiento sociale"
+    description: "Valor máximo del área de conocimiento sociales"
   }
 
   set: detail {

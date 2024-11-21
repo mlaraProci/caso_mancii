@@ -8,6 +8,13 @@ view: participants {
     sql: ${TABLE}.id ;;
   }
 
+  dimension: id_hex {
+    type: string
+    sql: HEX(${TABLE}.id) ;;
+    description: "ID del participante en formato hexadecimal"
+    label: "ID"
+  }
+
   dimension: auth_id {
     type: string
     sql: ${TABLE}.auth_id ;;
@@ -55,14 +62,14 @@ view: participants {
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
-  id,
-  name,
-  answers.count,
-  attendent.count,
-  construct_metrics.count,
-  interaction_metrics.count,
-  socio_demographics.count
-  ]
+      id,
+      id_hex,
+      name,
+      answers.count,
+      attendent.count,
+      construct_metrics.count,
+      interaction_metrics.count,
+      socio_demographics.count
+    ]
   }
-
 }
