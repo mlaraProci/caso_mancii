@@ -31,6 +31,8 @@ explore: estadisticas_agregadas_para_tipos_de_aprendizaje {}
 explore: estadisticas_agregadas_para_carreras{}
 
 explore: estadisticas_agregadas_para_inteligencias {}
+
+explore: estadisticas_agregadas_para_areas_de_conocimiento {}
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {
