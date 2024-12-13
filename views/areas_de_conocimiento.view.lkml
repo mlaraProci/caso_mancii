@@ -35,6 +35,12 @@ view: areas_de_conocimiento {
     sql: ${TABLE}.value ;;
     description: "Valor asociado al área de conocimiento como dimensión"
   }
+  dimension: name {
+    type: number
+    sql: ${TABLE}.name  ;;
+    description: "Valor asociado al área de conocimiento como dimensión"
+  }
+
 
   # Medidas para cada área de conocimiento basadas en `kind` sin agregar, mostrando el valor máximo
   measure: agronomia {

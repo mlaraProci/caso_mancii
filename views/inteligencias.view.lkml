@@ -37,9 +37,8 @@ view: inteligencias {
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de inteligencia como dimensión"
   }
-# Dimensión para `name`
   dimension: name {
-    type: number
+    type: string
     sql: ${TABLE}.name ;;
     description: "Nombre"
   }
