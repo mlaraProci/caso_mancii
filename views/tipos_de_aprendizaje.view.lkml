@@ -2,6 +2,7 @@ view: tipos_de_aprendizaje {
   derived_table: {
     sql: SELECT
        HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
+       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
        LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
        `construct_metrics_decimal`.`value` AS value -- Incluimos value como una columna directa
     FROM `constructs`
@@ -11,7 +12,9 @@ view: tipos_de_aprendizaje {
     JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
     WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
     AND LOWER(TRIM(`constructs`.`name`)) LIKE '%tipos de aprendizaje%'
-    AND `construct_metrics_decimal`.`value` > 0 ;;
+    AND `construct_metrics_decimal`.`value` > 0
+    GROUP BY HEX(`participants`.`id`), name, kind, value;
+;;
   }
 
   # Dimensión para el ID en formato hexadecimal
@@ -30,6 +33,12 @@ view: tipos_de_aprendizaje {
 
   # Dimensión para `value`
   dimension: value {
+    type: number
+    sql: ${TABLE}.value ;;
+    description: "Valor asociado al tipo de aprendizaje como dimensión"
+  }
+# Dimensión para `name`
+  dimension: name {
     type: number
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de aprendizaje como dimensión"

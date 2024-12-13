@@ -2,6 +2,7 @@ view: carreras {
   derived_table: {
     sql: SELECT
        HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
+       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
        LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
        `construct_metrics_decimal`.`value` AS value -- Incluimos value como una columna directa
     FROM `constructs`
@@ -12,7 +13,8 @@ view: carreras {
     WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
     AND LOWER(TRIM(`constructs`.`name`)) LIKE '%carreras%'
     AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`);;
+    GROUP BY HEX(`participants`.`id`), `participants`.`name`;
+;;
   }
 
 
@@ -34,6 +36,12 @@ view: carreras {
     type: number
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de carrera como dimensión"
+  }
+# Dimensión para `name`
+  dimension: name {
+    type: number
+    sql: ${TABLE}.value ;;
+    description: "Nombre "
   }
 
   # Medidas para cada tipo de carrera basadas en `kind` usando MAX
