@@ -1,19 +1,20 @@
 view: areas_de_conocimiento {
   derived_table: {
     sql: SELECT
-       HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
-       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
-       MAX(`construct_metrics_decimal`.`value`) AS value -- Seleccionamos el valor máximo correspondiente a cada kind e id
-    FROM `constructs`
-    JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-    JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-    JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-    JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-    WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
-    AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
-    AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`), `participants`.`name`, kind;
+       HEX(`participants`.`id`) AS id,
+       MAX(`participants`.`name`) AS name, -- Agregamos una función de agregación
+       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind,
+       MAX(`construct_metrics_decimal`.`value`) AS value
+FROM `constructs`
+JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
+JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
+JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
+JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
+  AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
+  AND `construct_metrics_decimal`.`value` > 0
+GROUP BY HEX(`participants`.`id`), LOWER(TRIM(`construct_metrics`.`kind`));
+
  ;;
   }
 
@@ -38,7 +39,7 @@ view: areas_de_conocimiento {
     description: "Valor asociado al área de conocimiento como dimensión"
   }
   dimension: name {
-    type: number
+    type: string
     sql: ${TABLE}.name  ;;
     description: "Nombre"
   }
