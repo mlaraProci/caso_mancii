@@ -1,9 +1,10 @@
 view: areas_de_conocimiento {
   derived_table: {
     sql: SELECT
-       HEX(`participants`.`id`) AS id,
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind,
-       MAX(`construct_metrics_decimal`.`value`) AS value
+       HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
+       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
+       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
+       MAX(`construct_metrics_decimal`.`value`) AS value -- Seleccionamos el valor máximo correspondiente a cada kind e id
     FROM `constructs`
     JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
     JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
@@ -12,7 +13,8 @@ view: areas_de_conocimiento {
     WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
     AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
     AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`), kind; ;;
+    GROUP BY HEX(`participants`.`id`), `participants`.`name`, kind;
+ ;;
   }
 
   # Dimensión para el ID en formato hexadecimal
@@ -38,7 +40,7 @@ view: areas_de_conocimiento {
   dimension: name {
     type: number
     sql: ${TABLE}.name  ;;
-    description: "Valor asociado al área de conocimiento como dimensión"
+    description: "Nombre"
   }
 
 
