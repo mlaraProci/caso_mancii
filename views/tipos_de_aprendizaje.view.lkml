@@ -39,7 +39,7 @@ view: tipos_de_aprendizaje {
   }
 # Dimensión para `name`
   dimension: name {
-    type: number
+    type: string
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de aprendizaje como dimensión"
   }
