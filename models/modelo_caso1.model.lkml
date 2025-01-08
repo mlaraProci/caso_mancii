@@ -16,6 +16,8 @@ explore: personalidades {}
 
 explore: tipos_de_aprendizaje {}
 
+explore: type_of_learning {}
+
 explore: carreras {}
 
 explore: inteligencias {}
