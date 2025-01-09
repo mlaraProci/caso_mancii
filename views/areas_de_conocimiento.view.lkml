@@ -13,7 +13,7 @@ JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metric
 WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
   AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
   AND `construct_metrics_decimal`.`value` > 0
-GROUP BY HEX(`participants`.`id`), LOWER(TRIM(`construct_metrics`.`kind`)) LIMIT 10;
+GROUP BY HEX(`participants`.`name`), LOWER(TRIM(`construct_metrics`.`kind`));
 
  ;;
   }
