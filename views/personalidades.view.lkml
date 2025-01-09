@@ -2,6 +2,7 @@ view: personalidades {
   derived_table: {
     sql: SELECT
        HEX(`participants`.`id`) AS id,  -- Convertimos el ID a hexadecimal y lo nombramos como `id`
+       `participants`.`name` AS name,  -- Agregamos el nombre del participante
        `construct_metrics`.`kind`,
        `construct_metrics_decimal`.`value`,
        MAX(CASE WHEN `construct_metrics`.`kind` = 'amabilidad' THEN `construct_metrics_decimal`.`value` END) AS amabilidad,
@@ -9,15 +10,16 @@ view: personalidades {
        MAX(CASE WHEN `construct_metrics`.`kind` = 'conciencia' THEN `construct_metrics_decimal`.`value` END) AS conciencia,
        MAX(CASE WHEN `construct_metrics`.`kind` = 'estabilidad_emocional' THEN `construct_metrics_decimal`.`value` END) AS estabilidad_emocional,
        MAX(CASE WHEN `construct_metrics`.`kind` = 'extraversion' THEN `construct_metrics_decimal`.`value` END) AS extraversion
-      FROM `constructs`
-      JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-      JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-      JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-      JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-      WHERE TRIM(LOWER(`projects`.`title`)) LIKE 'previous-test'
-      AND TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidades%'
-      AND `construct_metrics_decimal`.`value` > 0
-      GROUP BY HEX(`participants`.`id`), `construct_metrics`.`kind`, `construct_metrics_decimal`.`value` ;;
+FROM `constructs`
+JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
+JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
+JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
+JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+WHERE TRIM(LOWER(`projects`.`title`)) LIKE 'previous-test'
+  AND TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidades%'
+  AND `construct_metrics_decimal`.`value` > 0
+GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`;
+ ;;
   }
 
   # Dimensión para el ID en formato hexadecimal
@@ -38,6 +40,12 @@ view: personalidades {
     type: number
     sql: ${TABLE}.value ;;
     description: "Valor de la personalidad"
+  }
+
+  dimension: name {
+    type: string
+    sql: ${TABLE}.name ;;
+    description: "Nombre"
   }
 
   # Medidas para cada tipo de personalidad

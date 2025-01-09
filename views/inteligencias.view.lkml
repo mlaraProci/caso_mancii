@@ -2,6 +2,7 @@ view: inteligencias {
   derived_table: {
     sql: SELECT
        HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
+       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
        LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
        `construct_metrics_decimal`.`value` AS value -- Incluimos value como una columna directa
     FROM `constructs`
@@ -12,7 +13,8 @@ view: inteligencias {
     WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
     AND LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
     AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`), kind, value; ;;
+    GROUP BY HEX(`participants`.`id`), name, kind, value;
+ ;;
   }
 
   # Dimensión para el ID en formato hexadecimal
@@ -34,6 +36,11 @@ view: inteligencias {
     type: number
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de inteligencia como dimensión"
+  }
+  dimension: name {
+    type: string
+    sql: ${TABLE}.name ;;
+    description: "Nombre"
   }
 
   # Medidas para cada tipo de inteligencia basadas en `kind`

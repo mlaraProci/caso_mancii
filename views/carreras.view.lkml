@@ -1,18 +1,21 @@
 view: carreras {
   derived_table: {
-    sql: SELECT
+    sql:SELECT
        HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
-       `construct_metrics_decimal`.`value` AS value -- Incluimos value como una columna directa
-    FROM `constructs`
-    JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-    JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-    JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-    JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-    WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
-    AND LOWER(TRIM(`constructs`.`name`)) LIKE '%carreras%'
-    AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`);;
+       `participants`.`name` AS name, -- Seleccionamos el nombre del participante
+       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Normalizamos el valor de `kind`
+       MAX(`construct_metrics_decimal`.`value`) AS value -- Seleccionamos el valor máximo
+FROM `constructs`
+JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
+JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
+JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
+JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
+  AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
+  AND `construct_metrics_decimal`.`value` > 0
+GROUP BY HEX(`participants`.`id`), `participants`.`name`, LOWER(TRIM(`construct_metrics`.`kind`));
+
+;;
   }
 
 
@@ -35,120 +38,215 @@ view: carreras {
     sql: ${TABLE}.value ;;
     description: "Valor asociado al tipo de carrera como dimensión"
   }
+# Dimensión para `name`
+  dimension: name {
+    type: string
+    sql: ${TABLE}.name ;;
+    description: "Nombre "
+  }
 
   # Medidas para cada tipo de carrera basadas en `kind` usando MAX
-  measure: administracion_agropecuaria {
+    measure: medicina_veterinaria {
+
+      type: max
+      sql: CASE WHEN ${kind} = 'medicina_veterinaria' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera medicina veterinaria"
+    }
+
+    measure: agronomia {
+      type: max
+      sql: CASE WHEN ${kind} = 'agronomia' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera agronomia"
+    }
+
+    measure: zootecnia {
+      type: max
+      sql: CASE WHEN ${kind} = 'zootecnia' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera zootecnia"
+    }
+
+    measure: administracion_agropecuaria {
+      type: max
+      sql: CASE WHEN ${kind} = 'administracion_agropecuaria' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera administracion agropecuaria"
+    }
+
+    measure: agricultura {
+      type: max
+      sql: CASE WHEN ${kind} = 'agricultura' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera agricultura"
+    }
+
+    measure: ganaderia {
+      type: max
+      sql: CASE WHEN ${kind} = 'ganaderia' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera ganaderia"
+    }
+
+    measure: artes_plasticas {
+      type: max
+      sql: CASE WHEN ${kind} = 'artes_plasticas' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera artes plásticas"
+    }
+
+    measure: diseno_grafico {
+      type: max
+      sql: CASE WHEN ${kind} = 'diseno_grafico' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera diseno gráfico"
+    }
+
+    measure: publicidad {
+      type: max
+      sql: CASE WHEN ${kind} = 'publicidad' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera publicidad"
+    }
+
+    measure: diseno_de_moda {
+      type: max
+      sql: CASE WHEN ${kind} = 'diseno_de_moda' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera diseno de moda"
+    }
+
+    measure: cinematografia {
+      type: max
+      sql: CASE WHEN ${kind} = 'cinematografia' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera cinematografía"
+    }
+
+    measure: dramatica_teatro {
+      type: max
+      sql: CASE WHEN ${kind} = 'dramatica_teatro' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera dramática teatro"
+    }
+
+    measure: danza {
+      type: max
+      sql: CASE WHEN ${kind} = 'danza' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera danza"
+    }
+
+    measure: animacion_digital {
+      type: max
+      sql: CASE WHEN ${kind} = 'animacion_digital' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera animación digital"
+    }
+
+    measure: musica {
+      type: max
+      sql: CASE WHEN ${kind} = 'musica' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera música"
+    }
+
+    measure: fotografia {
+      type: max
+      sql: CASE WHEN ${kind} = 'fotografia' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera fotografía"
+    }
+
+    measure: diseno_de_interiores {
+      type: max
+      sql: CASE WHEN ${kind} = 'diseno_de_interiores' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera diseno de interiores"
+    }
+
+    measure: ilustracion {
+      type: max
+      sql: CASE WHEN ${kind} = 'ilustracion' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera ilustración"
+    }
+
+    measure: diseno_industrial {
+      type: max
+      sql: CASE WHEN ${kind} = 'diseno_industrial' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera diseno industrial"
+    }
+
+    measure: cine_tv {
+      type: max
+      sql: CASE WHEN ${kind} = 'cine_tv' THEN ${value} ELSE NULL END ;;
+      description: "Valor máximo del tipo de carrera cine y televisión"
+    }
+  measure: educacion_fisica {
     type: max
-    sql: CASE WHEN ${kind} = 'administracion_agropecuaria' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera administración agropecuaria"
+    sql: CASE WHEN ${kind} = 'educacion_fisica' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera educación física"
   }
 
-  measure: agricultura {
+  measure: derecho_y_afines {
     type: max
-    sql: CASE WHEN ${kind} = 'agricultura' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera agricultura"
+    sql: CASE WHEN ${kind} = 'derecho_y_afines' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera derecho y afines"
   }
 
-  measure: agronomia {
+  measure: filosofia {
     type: max
-    sql: CASE WHEN ${kind} = 'agronomia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera agronomía"
+    sql: CASE WHEN ${kind} = 'filosofia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera filosofía"
   }
 
-  measure: arquitectura {
+  measure: teologia {
     type: max
-    sql: CASE WHEN ${kind} = 'arquitectura' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera arquitectura"
+    sql: CASE WHEN ${kind} = 'teologia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera teología"
   }
 
-  measure: artes_plasticas {
+  measure: formacion_relacionada_con_el_campo_militar {
     type: max
-    sql: CASE WHEN ${kind} = 'artes_plasticas' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera artes plásticas"
+    sql: CASE WHEN ${kind} = 'formacion_relacionada_con_el_campo_militar' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera formación relacionada con el campo militar"
   }
 
-  measure: bacteriologia {
+  measure: geografia {
     type: max
-    sql: CASE WHEN ${kind} = 'bacteriologia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera bacteriología"
+    sql: CASE WHEN ${kind} = 'geografia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera geografía"
   }
 
-  measure: bibliotecologia {
+  measure: historia {
     type: max
-    sql: CASE WHEN ${kind} = 'bibliotecologia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera bibliotecología"
+    sql: CASE WHEN ${kind} = 'historia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera historia"
   }
 
-  measure: cinematografia {
+  measure: lenguas_modernas {
     type: max
-    sql: CASE WHEN ${kind} = 'cinematografia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera cinematografía"
+    sql: CASE WHEN ${kind} = 'lenguas_modernas' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera lenguas modernas"
   }
 
-  measure: creador_de_contenido {
+  measure: literatura {
     type: max
-    sql: CASE WHEN ${kind} = 'creador_de_contenido' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera creador de contenido"
+    sql: CASE WHEN ${kind} = 'literatura' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera literatura"
   }
 
-  measure: danza {
+  measure: linguistica {
     type: max
-    sql: CASE WHEN ${kind} = 'danza' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera danza"
+    sql: CASE WHEN ${kind} = 'linguistica' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera lingüística"
   }
 
-  measure: diseno_de_interiores {
+  measure: psicologia {
     type: max
-    sql: CASE WHEN ${kind} = 'diseno_de_interiores' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera diseño de interiores"
+    sql: CASE WHEN ${kind} = 'psicologia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera psicología"
   }
 
-  measure: diseno_de_moda {
+  measure: sociologia {
     type: max
-    sql: CASE WHEN ${kind} = 'diseno_de_moda' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera diseño de moda"
+    sql: CASE WHEN ${kind} = 'sociologia' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera sociología"
   }
 
-  measure: diseno_grafico {
+  measure: trabajo_social {
     type: max
-    sql: CASE WHEN ${kind} = 'diseno_grafico' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera diseño gráfico"
+    sql: CASE WHEN ${kind} = 'trabajo_social' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera trabajo social"
   }
-
-  measure: diseno_industrial {
+  measure: licenciatura_en_educacion_primaria {
     type: max
-    sql: CASE WHEN ${kind} = 'diseno_industrial' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera diseño industrial"
-  }
-
-  measure: fotografia {
-    type: max
-    sql: CASE WHEN ${kind} = 'fotografia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera fotografía"
-  }
-
-  measure: ganaderia {
-    type: max
-    sql: CASE WHEN ${kind} = 'ganaderia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera ganadería"
-  }
-
-  measure: gastronomia {
-    type: max
-    sql: CASE WHEN ${kind} = 'gastronomia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera gastronomía"
-  }
-
-  measure: ilustracion {
-    type: max
-    sql: CASE WHEN ${kind} = 'ilustracion' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera ilustración"
-  }
-
-  measure: instrumentacion_quirurquica {
-    type: max
-    sql: CASE WHEN ${kind} = 'instrumentacion_quirurquica' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera instrumentación quirúrgica"
+    sql: CASE WHEN ${kind} = 'licenciatura_en_educacion_primaria' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera licenciatura en educación primaria"
   }
 
   measure: licenciatura_en_educacion_basica {
@@ -157,73 +255,73 @@ view: carreras {
     description: "Valor máximo del tipo de carrera licenciatura en educación básica"
   }
 
-  measure: medicina_veterinaria {
+  measure: optometria {
     type: max
-    sql: CASE WHEN ${kind} = 'medicina_veterinaria' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera medicina veterinaria"
+    sql: CASE WHEN ${kind} = 'optometria' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera optometría"
   }
 
-  measure: odontologia {
+  measure: ingeniero_fintech {
     type: max
-    sql: CASE WHEN ${kind} = 'odontologia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera odontología"
+    sql: CASE WHEN ${kind} = 'ingeniero_fintech' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera ingeniero fintech"
   }
 
-  measure: quimica {
+  measure: data_engineer {
     type: max
-    sql: CASE WHEN ${kind} = 'quimica' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera química"
+    sql: CASE WHEN ${kind} = 'data_engineer' THEN ${value} ELSE NULL END ;;
+    description: "Valor máximo del tipo de carrera data engineer"
   }
 
-  measure: salud_publica {
-    type: max
-    sql: CASE WHEN ${kind} = 'salud_publica' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera salud pública"
-  }
-
-  measure: terapias {
-    type: max
-    sql: CASE WHEN ${kind} = 'terapias' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera terapias"
-  }
-
-  measure: zootecnia {
-    type: max
-    sql: CASE WHEN ${kind} = 'zootecnia' THEN ${value} ELSE NULL END ;;
-    description: "Valor máximo del tipo de carrera zootecnia"
-  }
 
   set: detail {
     fields: [
+
       id,
       kind,
       value,
+      name,
+      medicina_veterinaria,
+      agronomia,
+      zootecnia,
       administracion_agropecuaria,
       agricultura,
-      agronomia,
-      arquitectura,
-      artes_plasticas,
-      bacteriologia,
-      bibliotecologia,
-      cinematografia,
-      creador_de_contenido,
-      danza,
-      diseno_de_interiores,
-      diseno_de_moda,
-      diseno_grafico,
-      diseno_industrial,
-      fotografia,
       ganaderia,
-      gastronomia,
+      artes_plasticas,
+      diseno_grafico,
+      publicidad,
+      diseno_de_moda,
+      cinematografia,
+      dramatica_teatro,
+      danza,
+      animacion_digital,
+      musica,
+      fotografia,
+      diseno_de_interiores,
       ilustracion,
-      instrumentacion_quirurquica,
+      diseno_industrial,
+      cine_tv,
+      educacion_fisica,
+      derecho_y_afines,
+      filosofia,
+      teologia,
+      formacion_relacionada_con_el_campo_militar,
+      geografia,
+      historia,
+      lenguas_modernas,
+      literatura,
+      linguistica,
+      psicologia,
+      sociologia,
+      trabajo_social,
+      licenciatura_en_educacion_primaria,
       licenciatura_en_educacion_basica,
-      medicina_veterinaria,
-      odontologia,
-      quimica,
-      salud_publica,
-      terapias,
-      zootecnia
+      optometria,
+      ingeniero_fintech,
+      data_engineer
     ]
+
+
+
   }
 }
