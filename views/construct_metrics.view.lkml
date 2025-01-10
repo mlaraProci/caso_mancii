@@ -3,7 +3,7 @@ view: construct_metrics {
   drill_fields: [id]
 
   dimension: id {
-    primary_key: yes
+    #primary_key: yes
     type: string
     sql: ${TABLE}.id ;;
   }
@@ -13,6 +13,7 @@ view: construct_metrics {
   }
   dimension: construct_id {
     type: string
+    primary_key: yes
     # hidden: yes
     sql: ${TABLE}.construct_id ;;
   }
@@ -57,13 +58,10 @@ view: construct_metrics {
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
-	id,
-	constructs.id,
-	constructs.name,
-	participants.id,
-	participants.name,
-	metrics_parameters.count
-	]
+  id,
+  construct_id,
+  participant_id,
+  ]
   }
 
 }

@@ -1,10 +1,10 @@
 view: estadisticas_agregadas_para_inteligencias {
   derived_table: {
-    sql: SELECT
+    sql:SELECT
        `construct_metrics`.`kind`,
        AVG(`construct_metrics_decimal`.`value`) as `average`,
-       STDDEV(`construct_metrics_decimal`.`value`) AS `std_deviation`,
-       VARIANCE(`construct_metrics_decimal`.`value`) AS `variance`,
+        STDDEV(`construct_metrics_decimal`.`value`) AS `std_deviation`,
+        VARIANCE(`construct_metrics_decimal`.`value`) AS `variance`,
        MIN(`construct_metrics_decimal`.`value`) AS `min_value`,
        MAX(`construct_metrics_decimal`.`value`) AS `max_value`,
        SUBSTRING_INDEX(
@@ -41,7 +41,8 @@ view: estadisticas_agregadas_para_inteligencias {
       WHERE TRIM(LOWER(`projects`.`title`)) LIKE 'previous-test'
       AND TRIM(LOWER(`constructs`.`name`)) LIKE '%inteligencias%'
       AND `construct_metrics_decimal`.`value` > 0
-      GROUP BY `construct_metrics`.`kind` ;;
+      GROUP BY `construct_metrics`.`kind`;
+ ;;
   }
 
   measure: count {
@@ -53,6 +54,11 @@ view: estadisticas_agregadas_para_inteligencias {
     type: string
     sql: ${TABLE}.kind ;;
   }
+
+  #dimension: name {
+  #  type: string
+  #  sql: ${TABLE}.name ;;
+  #}
 
   measure: average {
     type: average

@@ -10,8 +10,8 @@ view: inteligencias {
     JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
     JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
     JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-    WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
-    AND LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
+
+    where LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
     AND `construct_metrics_decimal`.`value` > 0
     GROUP BY HEX(`participants`.`id`), name, kind, value;
  ;;
@@ -96,6 +96,10 @@ view: inteligencias {
     type: sum
     sql: CASE WHEN ${kind} = 'inteligencia_naturalista' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia naturalista"
+  }
+  measure: count {
+    type: count
+    drill_fields: [id, kind, value]
   }
 
   set: detail {

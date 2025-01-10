@@ -15,8 +15,8 @@ JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
 JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
 JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
 JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-WHERE TRIM(LOWER(`projects`.`title`)) LIKE 'previous-test'
-  AND TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidades%'
+
+where TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidades%'
   AND `construct_metrics_decimal`.`value` > 0
 GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`;
  ;;
@@ -77,6 +77,11 @@ GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`k
     type: max
     sql: ${TABLE}.extraversion ;;
     description: "Valor máximo de extraversión"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [kind]
   }
 
   set: detail {

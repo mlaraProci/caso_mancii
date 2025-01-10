@@ -10,8 +10,8 @@ JOIN projects pr ON pr.id = c.project_id
 JOIN construct_metrics cm ON cm.construct_id = c.id
 JOIN participants p ON p.id = cm.participant_id
 JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
-WHERE LOWER(TRIM(pr.title)) LIKE 'previous-test' -- Filtramos el título del proyecto
-  AND LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%' -- Filtramos el nombre del constructo
+
+where LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%' -- Filtramos el nombre del constructo
   AND cmd.value > 0 -- Filtramos valores mayores a 0
 GROUP BY HEX(p.id), p.name, kind, value; -- Agrupamos por los campos seleccionados
 
@@ -74,6 +74,12 @@ GROUP BY HEX(p.id), p.name, kind, value; -- Agrupamos por los campos seleccionad
     type: max
     sql: CASE WHEN ${kind} = 'social' THEN ${value} ELSE NULL END ;;
     description: "Valor máximo del tipo de aprendizaje social"
+  }
+
+  measure: total_value {
+    type: count_distinct
+    sql: ${value} ;;
+    description: "Suma total de los valores de aprendizaje"
   }
 
   set: detail {
