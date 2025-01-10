@@ -9,7 +9,7 @@ view: personality {
     JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
     JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
     JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-    AND LOWER(TRIM(`constructs`.`name`)) LIKE '%personalidades%'
+    AND LOWER(TRIM(`constructs`.`name`)) LIKE '%personalidad%'
     AND `construct_metrics_decimal`.`value` > 0
     ;;
   }
