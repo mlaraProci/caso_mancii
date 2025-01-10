@@ -103,6 +103,8 @@ view: questions {
     type: string
     sql: ${TABLE}.verbs ;;
   }
+
+
   measure: count {
     type: count
     drill_fields: [detail*]
@@ -111,18 +113,18 @@ view: questions {
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
-	id,
-	construct_name,
-	constructs.id,
-	constructs.name,
-	analysis_results.count,
-	answers.count,
-	concurrent_correlation_coefficient.count,
-	discrimination_index.count,
-	item_functioning_differences.count,
-	predictive_correlation_coefficient.count,
-	question_options.count
-	]
+  id,
+  construct_name,
+  constructs.id,
+  constructs.name,
+  analysis_results.count,
+  answers.count,
+  concurrent_correlation_coefficient.count,
+  discrimination_index.count,
+  item_functioning_differences.count,
+  predictive_correlation_coefficient.count,
+  question_options.count
+  ]
   }
 
 }

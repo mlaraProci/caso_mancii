@@ -26,6 +26,10 @@ explore: contact {}
 
 explore: inteligencias {}
 
+explore: Types{}
+
+explore: aprendizaje_tipos{}
+
 explore: areas_de_conocimiento {}
 
 explore: valores {}
@@ -748,6 +752,11 @@ explore: questions {
   join: projects {
     type: left_outer
     sql_on: ${constructs.project_id} = ${projects.id} ;;
+    relationship: many_to_one
+  }
+  join: answers {
+    type: left_outer
+    sql_on: ${questions.id} = ${answers.question_id} ;;
     relationship: many_to_one
   }
 }

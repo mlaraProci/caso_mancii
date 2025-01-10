@@ -21,7 +21,9 @@ view: socio_demographics {
   }
   dimension: city {
     type: string
-    sql: ${TABLE}.city ;;
+#    sql_latitude: ${} ;;
+#    sql_longitude: ${} ;;
+#    sql: ${TABLE}.city ;;
   }
   dimension: contact {
     type: string
@@ -31,11 +33,11 @@ view: socio_demographics {
     type: string
     sql: ${TABLE}.contact_type ;;
   }
-  dimension: country {
-    type: string
-    map_layer_name: countries
-    sql: ${TABLE}.country ;;
-  }
+#  dimension: country {
+#    type: location
+#    map_layer_name: countries
+#   sql: ${TABLE}.country ;;
+#  }
   dimension_group: created {
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
@@ -81,7 +83,9 @@ view: socio_demographics {
   }
   dimension: social_media {
     type: string
-    sql: ${TABLE}.social_media ;;
+    #sql: ${TABLE}.social_media ;;
+    sql: MANCII_RESULTS.socio_demographics.social_media ;;
+
   }
   dimension_group: updated {
     type: time
