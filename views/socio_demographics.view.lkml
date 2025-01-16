@@ -19,11 +19,21 @@ view: socio_demographics {
     type: string
     sql: ${TABLE}.choice ;;
   }
+  dimension: country {
+    type: string
+    map_layer_name: countries
+    sql: ${TABLE}.country ;;
+  }
+  #dimension: country {
+  #  type: string
+  #  map_layer_name: countries
+  #  sql: TRIM(UPPER(${TABLE}.country)) ;;
+  #}
+
   dimension: city {
     type: string
-#    sql_latitude: ${} ;;
-#    sql_longitude: ${} ;;
-#    sql: ${TABLE}.city ;;
+    map_layer_name: countries
+    sql: ${TABLE}.city ;;
   }
   dimension: contact {
     type: string
