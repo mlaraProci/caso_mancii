@@ -22,6 +22,8 @@ explore: personality {}
 
 explore: carreras {}
 
+explore:  career_frequencies{}
+
 explore: contact {}
 
 explore: inteligencias {}
