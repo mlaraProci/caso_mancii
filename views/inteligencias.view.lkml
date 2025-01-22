@@ -1,19 +1,22 @@
 view: inteligencias {
   derived_table: {
-    sql: SELECT
-       HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
-       `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
-       `construct_metrics_decimal`.`value` AS value -- Incluimos value como una columna directa
-    FROM `constructs`
-    JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-    JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-    JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-    JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+    sql:SELECT
+       HEX(p.id) AS id,  -- Convertimos el ID a formato hexadecimal
+       p.name AS name,  -- Incluimos el campo name de la tabla participants
+       LOWER(TRIM(cm.kind)) AS kind,  -- Normalizamos el valor de kind
+       cmd.value AS value  -- Incluimos value de construct_metrics_decimal
+FROM constructs c
+JOIN projects pr ON pr.id = c.project_id
+JOIN project_clients pc ON pc.project_id = pr.id
+JOIN clients cl ON cl.id = pc.client_id
+JOIN construct_metrics cm ON cm.construct_id = c.id
+JOIN participants p ON p.id = cm.participant_id
+JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
+WHERE LOWER(TRIM(c.name)) LIKE '%inteligencias%'  -- Filtramos por el nombre del constructo
+  AND cmd.value > 0  -- Filtramos valores mayores a 0
+  AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
+GROUP BY HEX(p.id), p.name, cm.kind, cmd.value;
 
-    where LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
-    AND `construct_metrics_decimal`.`value` > 0
-    GROUP BY HEX(`participants`.`id`), name, kind, value;
  ;;
   }
 
