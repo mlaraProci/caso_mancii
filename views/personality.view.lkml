@@ -16,6 +16,16 @@ view: personality {
         TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidad%'
         AND TRIM(LOWER(projects.title)) LIKE '%vocacional%'
         AND TRIM(LOWER(clients.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+        AND (
+          '{{ _user_attributes['city'] }}' IS NULL
+          OR '{{ _user_attributes['city'] }}' = ''
+          OR TRIM(LOWER(socio_demographics.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+        )
+        AND (
+          '{{ _user_attributes['school'] }}' IS NULL
+          OR '{{ _user_attributes['school'] }}' = ''
+          OR TRIM(LOWER(socio_demographics.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+        )
         AND `construct_metrics_decimal`.`value` > 0
 )
 SELECT
