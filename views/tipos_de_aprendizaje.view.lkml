@@ -7,13 +7,16 @@ view: tipos_de_aprendizaje {
     cmd.value AS value -- Incluimos el valor de construct_metrics_decimal
 FROM constructs c
 JOIN projects pr ON pr.id = c.project_id
+JOIN project_clients pc ON pc.project_id = pr.id
+JOIN clients cl ON cl.id = pc.client_id
 JOIN construct_metrics cm ON cm.construct_id = c.id
 JOIN participants p ON p.id = cm.participant_id
 JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
-
-where LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%' -- Filtramos el nombre del constructo
+WHERE LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%' -- Filtramos el nombre del constructo
   AND cmd.value > 0 -- Filtramos valores mayores a 0
+  AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')) -- Filtro dinámico para el acrónimo del cliente
 GROUP BY HEX(p.id), p.name, kind, value; -- Agrupamos por los campos seleccionados
+
 
 ;;
   }

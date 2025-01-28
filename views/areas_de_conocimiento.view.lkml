@@ -1,19 +1,22 @@
 view: areas_de_conocimiento {
   derived_table: {
-    sql: SELECT
-       HEX(`participants`.`id`) AS id,
-       MAX(`participants`.`name`) AS name, -- Agregamos una función de agregación
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind,
-       MAX(`construct_metrics_decimal`.`value`) AS value
-FROM `constructs`
-JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
-  AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
-  AND `construct_metrics_decimal`.`value` > 0
-GROUP BY HEX(`participants`.`name`), LOWER(TRIM(`construct_metrics`.`kind`));
+    sql:SELECT
+    HEX(p.`id`) AS `id`,
+    MAX(p.`name`) AS `name`, -- Selecciona el nombre máximo en caso de duplicados
+    LOWER(TRIM(cm.`kind`)) AS `kind`,
+    MAX(cmd.`value`) AS `value`,
+    MAX(ua.`attribute_value`) AS `user_attribute` -- Agregamos el campo de user_attributes
+FROM `constructs` c
+JOIN `projects` pr ON pr.`id` = c.`project_id`
+JOIN `construct_metrics` cm ON cm.`construct_id` = c.`id`
+JOIN `participants` p ON p.`id` = cm.`participant_id`
+JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
+LEFT JOIN `user_attributes` ua ON ua.`user_id` = p.`id` -- Relación con user_attributes
+WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
+  AND LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
+  AND cmd.`value` > 0
+GROUP BY HEX(p.`id`), LOWER(TRIM(cm.`kind`));
+;
 
  ;;
   }

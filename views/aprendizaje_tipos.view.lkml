@@ -2,23 +2,24 @@ view: aprendizaje_tipos {
   derived_table: {
     sql:
       SELECT
-        HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
-        `participants`.`name` AS name, -- Incluimos el campo name de la tabla participants
-        LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Incluimos kind como una columna directa, normalizando el valor
-        `construct_metrics_decimal`.`value` AS value, -- Incluimos el valor original de la métrica
-        CASE
-          WHEN `construct_metrics_decimal`.`value` <= 0.33 THEN 'Bajo' -- Valores entre 0 y 0.33
-          WHEN `construct_metrics_decimal`.`value` > 0.33 AND `construct_metrics_decimal`.`value` <= 0.66 THEN 'Medio' -- Valores entre 0.34 y 0.66
-          ELSE 'Alto' -- Valores mayores a 0.66
-        END AS value_category -- Clasificamos el valor como Bajo, Medio o Alto
-      FROM `constructs`
-      JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-      JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-      JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-      JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-      WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%aprendizaje%'
-      AND `construct_metrics_decimal`.`value` > 0
-      GROUP BY HEX(`participants`.`id`), name, kind, value, value_category ;;
+    HEX(`participants`.`id`) AS `id`, -- Convertimos el ID a formato hexadecimal
+    `participants`.`name` AS `name`, -- Incluimos el campo name de la tabla participants
+    LOWER(TRIM(`construct_metrics`.`kind`)) AS `kind`, -- Incluimos kind como una columna directa, normalizando el valor
+    `construct_metrics_decimal`.`value` AS `value`, -- Incluimos el valor original de la métrica
+    CASE
+        WHEN `construct_metrics_decimal`.`value` <= 0.33 THEN 'Bajo' -- Valores entre 0 y 0.33
+        WHEN `construct_metrics_decimal`.`value` > 0.33 AND `construct_metrics_decimal`.`value` <= 0.66 THEN 'Medio' -- Valores entre 0.34 y 0.66
+        ELSE 'Alto' -- Valores mayores a 0.66
+    END AS `value_category` -- Clasificamos el valor como Bajo, Medio o Alto
+FROM `constructs`
+JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
+JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
+JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
+JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%aprendizaje%'
+  AND `construct_metrics_decimal`.`value` > 0
+GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`, value_category;
+;;
   }
 
   dimension: id {

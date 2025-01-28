@@ -1,47 +1,48 @@
 view: estadisticas_agregadas_para_carreras {
   derived_table: {
-    sql: SELECT
-       `construct_metrics`.`kind`,
-        AVG(`construct_metrics_decimal`.`value`) AS `average`,
-        STDDEV(`construct_metrics_decimal`.`value`) AS `std_deviation`,
-        VARIANCE(`construct_metrics_decimal`.`value`) AS `variance`,
-       MIN(`construct_metrics_decimal`.`value`) AS `min_value`,
-       MAX(`construct_metrics_decimal`.`value`) AS `max_value`,
+    sql:SELECT
+       cm.kind,  -- Tipo de métrica
+       AVG(cmd.value) AS average,  -- Promedio de los valores
+       STDDEV(cmd.value) AS std_deviation,  -- Desviación estándar
+       VARIANCE(cmd.value) AS variance,  -- Varianza
+       MIN(cmd.value) AS min_value,  -- Valor mínimo
+       MAX(cmd.value) AS max_value,  -- Valor máximo
        SUBSTRING_INDEX(
           SUBSTRING_INDEX(
-            GROUP_CONCAT(`construct_metrics_decimal`.`value` ORDER BY `construct_metrics_decimal`.`value`),
+            GROUP_CONCAT(cmd.value ORDER BY cmd.value),
             ',',
-            ROUND(0.5 * COUNT(`construct_metrics_decimal`.`value`))
+            ROUND(0.5 * COUNT(cmd.value))
           ),
           ',',
           -1
-        ) AS `median_value`,
+        ) AS median_value,  -- Mediana
         SUBSTRING_INDEX(
           SUBSTRING_INDEX(
-            GROUP_CONCAT(`construct_metrics_decimal`.`value` ORDER BY `construct_metrics_decimal`.`value`),
+            GROUP_CONCAT(cmd.value ORDER BY cmd.value),
             ',',
-            ROUND(0.25 * COUNT(`construct_metrics_decimal`.`value`))
+            ROUND(0.25 * COUNT(cmd.value))
           ),
           ',',
           -1
-        ) AS `first_quartile`,
+        ) AS first_quartile,  -- Primer cuartil
         SUBSTRING_INDEX(
           SUBSTRING_INDEX(
-            GROUP_CONCAT(`construct_metrics_decimal`.`value` ORDER BY `construct_metrics_decimal`.`value`),
+            GROUP_CONCAT(cmd.value ORDER BY cmd.value),
             ',',
-            ROUND(0.75 * COUNT(`construct_metrics_decimal`.`value`))
+            ROUND(0.75 * COUNT(cmd.value))
           ),
           ',',
           -1
-        ) AS `third_quartile`
-      FROM `constructs`
-      JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-      JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-      JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-      WHERE TRIM(LOWER(`projects`.`title`)) LIKE 'previous-test'
-      AND TRIM(LOWER(`constructs`.`name`)) LIKE '%carreras%'
-      AND `construct_metrics_decimal`.`value` > 0
-      GROUP BY `construct_metrics`.`kind` ;;
+        ) AS third_quartile  -- Tercer cuartil
+FROM constructs c
+JOIN projects pr ON pr.id = c.project_id
+JOIN construct_metrics cm ON cm.construct_id = c.id
+JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
+WHERE TRIM(LOWER(pr.title)) LIKE 'previous-test'  -- Filtramos el proyecto específico
+  AND TRIM(LOWER(c.name)) LIKE '%carreras%'  -- Filtramos por el constructo relacionado a "carreras"
+  AND cmd.value > 0  -- Filtramos valores mayores a 0
+GROUP BY cm.kind;  -- Agrupamos por tipo de métrica
+ ;;
   }
 
   measure: count {

@@ -1,24 +1,27 @@
 view: personalidades {
   derived_table: {
     sql: SELECT
-       HEX(`participants`.`id`) AS id,  -- Convertimos el ID a hexadecimal y lo nombramos como `id`
-       `participants`.`name` AS name,  -- Agregamos el nombre del participante
-       `construct_metrics`.`kind`,
-       `construct_metrics_decimal`.`value`,
-       MAX(CASE WHEN `construct_metrics`.`kind` = 'amabilidad' THEN `construct_metrics_decimal`.`value` END) AS amabilidad,
-       MAX(CASE WHEN `construct_metrics`.`kind` = 'apertura_a_la_experiencia' THEN `construct_metrics_decimal`.`value` END) AS apertura_a_la_experiencia,
-       MAX(CASE WHEN `construct_metrics`.`kind` = 'conciencia' THEN `construct_metrics_decimal`.`value` END) AS conciencia,
-       MAX(CASE WHEN `construct_metrics`.`kind` = 'estabilidad_emocional' THEN `construct_metrics_decimal`.`value` END) AS estabilidad_emocional,
-       MAX(CASE WHEN `construct_metrics`.`kind` = 'extraversion' THEN `construct_metrics_decimal`.`value` END) AS extraversion
-FROM `constructs`
-JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+       HEX(p.id) AS id,  -- Convertimos el ID a hexadecimal y lo nombramos como `id`
+       p.name AS name,  -- Agregamos el nombre del participante
+       cm.kind,
+       cmd.value,
+       MAX(CASE WHEN cm.kind = 'amabilidad' THEN cmd.value END) AS amabilidad,
+       MAX(CASE WHEN cm.kind = 'apertura_a_la_experiencia' THEN cmd.value END) AS apertura_a_la_experiencia,
+       MAX(CASE WHEN cm.kind = 'conciencia' THEN cmd.value END) AS conciencia,
+       MAX(CASE WHEN cm.kind = 'estabilidad_emocional' THEN cmd.value END) AS estabilidad_emocional,
+       MAX(CASE WHEN cm.kind = 'extraversion' THEN cmd.value END) AS extraversion
+FROM constructs c
+JOIN projects pr ON pr.id = c.project_id
+JOIN project_clients pc ON pc.project_id = pr.id
+JOIN clients cl ON cl.id = pc.client_id
+JOIN construct_metrics cm ON cm.construct_id = c.id
+JOIN participants p ON p.id = cm.participant_id
+JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
+WHERE TRIM(LOWER(c.name)) LIKE '%personalidades%'  -- Filtramos por el nombre del constructo
+  AND cmd.value > 0  -- Filtramos valores mayores a 0
+  AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
+GROUP BY HEX(p.id), p.name, cm.kind, cmd.value;
 
-where TRIM(LOWER(`constructs`.`name`)) LIKE '%personalidades%'
-  AND `construct_metrics_decimal`.`value` > 0
-GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`;
  ;;
   }
 
