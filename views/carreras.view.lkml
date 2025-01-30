@@ -1,20 +1,32 @@
 view: carreras {
   derived_table: {
     sql:SELECT
-       HEX(`participants`.`id`) AS id, -- Convertimos el ID a formato hexadecimal
-       `participants`.`name` AS name, -- Seleccionamos el nombre del participante
-       LOWER(TRIM(`construct_metrics`.`kind`)) AS kind, -- Normalizamos el valor de `kind`
-       MAX(`construct_metrics_decimal`.`value`) AS value -- Seleccionamos el valor máximo
-FROM `constructs`
-JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
-JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
-JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
-JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-WHERE LOWER(TRIM(`projects`.`title`)) LIKE 'previous-test'
-  AND LOWER(TRIM(`constructs`.`name`)) LIKE '%areas de conocimiento%'
-  AND `construct_metrics_decimal`.`value` > 0
-GROUP BY HEX(`participants`.`id`), `participants`.`name`, LOWER(TRIM(`construct_metrics`.`kind`));
-
+    HEX(p.`id`) AS id, -- Convertimos el ID a formato hexadecimal
+    p.`name` AS name, -- Seleccionamos el nombre del participante
+    LOWER(TRIM(cm.`kind`)) AS kind, -- Normalizamos el valor de `kind`
+    MAX(cmd.`value`) AS value -- Seleccionamos el valor máximo
+FROM `constructs` c
+JOIN `projects` pr ON pr.`id` = c.`project_id`
+JOIN `construct_metrics` cm ON cm.`construct_id` = c.`id`
+JOIN `participants` p ON p.`id` = cm.`participant_id`
+JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
+JOIN `socio_demographics` sd ON p.`id` = sd.`participant_id` -- Relación con socio_demographics
+JOIN `clients` cl ON sd.`client_id` = cl.`id` -- Relación con clients
+WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
+  AND LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
+  AND cmd.`value` > 0
+  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+  AND (
+      '{{ _user_attributes['city'] }}' IS NULL
+      OR '{{ _user_attributes['city'] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+  )
+  AND (
+      '{{ _user_attributes['school'] }}' IS NULL
+      OR '{{ _user_attributes['school'] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+  )
+GROUP BY HEX(p.`id`), p.`name`, LOWER(TRIM(cm.`kind`))
 ;;
   }
 

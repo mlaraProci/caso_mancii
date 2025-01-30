@@ -1,25 +1,38 @@
 view: career_frequencies {
   derived_table: {
     sql:
-      SELECT
-        CASE
-          WHEN career_count > 1 THEN career
-          ELSE 'Other'
-        END AS career_grouped,  -- Agrupa las carreras menos frecuentes como 'Other'
-        SUM(career_count) AS total_frequency
-      FROM (
-        SELECT
-          TRIM(jt.career) AS career,  -- Limpia espacios en las carreras
-          COUNT(*) AS career_count
-        FROM
-          socio_demographics
-        JOIN JSON_TABLE(preferred_careers, '$[*]'
-          COLUMNS (career VARCHAR(255) PATH '$')) jt
-        ON TRUE
-        GROUP BY jt.career
-      ) AS career_counts  -- Tabla derivada
-      GROUP BY career_grouped
-      ORDER BY total_frequency DESC
+     SELECT
+    CASE
+        WHEN career_count > 1 THEN career
+        ELSE 'Other'
+    END AS career_grouped,  -- Agrupa las carreras menos frecuentes como 'Other'
+    SUM(career_count) AS total_frequency
+FROM (
+    SELECT
+        TRIM(jt.career) AS career,  -- Limpia espacios en las carreras
+        COUNT(*) AS career_count
+    FROM socio_demographics sd
+    JOIN JSON_TABLE(preferred_careers, '$[*]'
+        COLUMNS (career VARCHAR(255) PATH '$')) jt
+    ON TRUE
+    JOIN clients cl ON sd.client_id = cl.id  -- Relación con clients
+    WHERE
+        TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+        AND (
+            '{{ _user_attributes['city'] }}' IS NULL
+            OR '{{ _user_attributes['city'] }}' = ''
+            OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+        )
+        AND (
+            '{{ _user_attributes['school'] }}' IS NULL
+            OR '{{ _user_attributes['school'] }}' = ''
+            OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+        )
+    GROUP BY jt.career
+) AS career_counts  -- Tabla derivada
+GROUP BY career_grouped
+ORDER BY total_frequency DESC;
+
     ;;
   }
 

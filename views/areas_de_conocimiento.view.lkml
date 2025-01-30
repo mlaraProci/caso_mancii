@@ -12,12 +12,23 @@ JOIN `construct_metrics` cm ON cm.`construct_id` = c.`id`
 JOIN `participants` p ON p.`id` = cm.`participant_id`
 JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
 LEFT JOIN `user_attributes` ua ON ua.`user_id` = p.`id` -- Relación con user_attributes
+JOIN `clients` cl ON pr.`client_id` = cl.`id`  -- Relación con la tabla clients
+JOIN `schools_data` sd ON p.`school_id` = sd.`id`  -- Relación con la tabla schools_data
 WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
   AND LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
   AND cmd.`value` > 0
-GROUP BY HEX(p.`id`), LOWER(TRIM(cm.`kind`));
-;
-
+  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+  AND (
+      '{{ _user_attributes['city'] }}' IS NULL
+      OR '{{ _user_attributes['city'] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+  )
+  AND (
+      '{{ _user_attributes['school'] }}' IS NULL
+      OR '{{ _user_attributes['school'] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+  )
+GROUP BY HEX(p.`id`), LOWER(TRIM(cm.`kind`))
  ;;
   }
 

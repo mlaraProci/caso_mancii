@@ -1,7 +1,7 @@
 view: Types {
   derived_table: {
     sql:
-      SELECT
+     SELECT
     HEX(`participants`.`id`) AS id,
     `participants`.`name` AS name,
     LOWER(TRIM(`construct_metrics`.`kind`)) AS kind,
@@ -17,9 +17,23 @@ JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
 JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
 JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
 JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
+JOIN `clients` cl ON `projects`.`client_id` = cl.id  -- Se asume la relación entre `projects` y `clients`
+JOIN `schools_data` sd ON `participants`.`school_id` = sd.id  -- Se asume la relación con `schools_data`
 WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
 AND `construct_metrics_decimal`.`value` > 0
-GROUP BY HEX(`participants`.`id`), `participants`.`name`, kind, value, value_category, `projects`.`title`
+AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+AND (
+    '{{ _user_attributes['city'] }}' IS NULL
+    OR '{{ _user_attributes['city'] }}' = ''
+    OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+)
+AND (
+    '{{ _user_attributes['school'] }}' IS NULL
+    OR '{{ _user_attributes['school'] }}' = ''
+    OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+)
+GROUP BY HEX(`participants`.`id`), `participants`.`name`, kind, value, value_category, `projects`.`title`;
+
 
  ;;
   }
