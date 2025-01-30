@@ -21,6 +21,7 @@ view: personality {
           AND construct_metrics_decimal.value > 0
     )
     SELECT
+
       participant_id AS id, -- Incluye el ID del participante
       participant_name AS name, -- Incluye el nombre del participante
       CASE
@@ -35,6 +36,8 @@ view: personality {
     FROM base_query
     GROUP BY participant_id, participant_name, type;
     ;;
+
+
   }
 
   # Dimensiones y medidas alineadas con la consulta SQL

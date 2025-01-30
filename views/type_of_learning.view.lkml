@@ -13,23 +13,21 @@ view: type_of_learning {
     JOIN participants p ON p.id = cm.participant_id
     JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
     LEFT JOIN student_data sd ON sd.participant_id = p.id
-
-      WHERE LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%'
+    WHERE LOWER(TRIM(c.name)) LIKE '%tipos de aprendizaje%'
       AND cmd.value > 0
-      AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+      AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))
       AND (
-      '{{ _user_attributes['city'] }}' IS NULL
-      OR '{{ _user_attributes['city'] }}' = ''
-      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+        '{{ _user_attributes["city"] }}' IS NULL
+        OR '{{ _user_attributes["city"] }}' = ''
+        OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["city"] }}', '%'))
       )
       AND (
-      '{{ _user_attributes['school'] }}' IS NULL
-      OR '{{ _user_attributes['school'] }}' = ''
-      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+        '{{ _user_attributes["school"] }}' IS NULL
+        OR '{{ _user_attributes["school"] }}' = ''
+        OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["school"] }}', '%'))
       )
-      GROUP BY HEX(p.id), p.name, kind, value
-      ;;
-
+    GROUP BY HEX(p.id), p.name, cm.kind, cmd.value
+    ;;
   }
 
   # Dimensiones
