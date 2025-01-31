@@ -17,7 +17,7 @@ MAX(CASE WHEN cm.kind = 'Inteligencia_existencial' THEN cmd.value END) AS Inteli
 MAX(CASE WHEN cm.kind = 'Inteligencia_logicomatematica' THEN cmd.value END) AS Inteligencia_logicomatematica
 FROM constructs c
 JOIN projects pr ON pr.id = c.project_id
-JOIN project_clients pc ON pc.project_id = pr.id
+JOIN project pc ON pc.id = pr.id
 JOIN clients cl ON cl.id = pc.client_id
 JOIN construct_metrics cm ON cm.construct_id = c.id
 JOIN participants p ON p.id = cm.participant_id

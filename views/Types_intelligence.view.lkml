@@ -17,7 +17,7 @@ JOIN `projects` ON `projects`.`id` = `constructs`.`project_id`
 JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`id`
 JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
 JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
-JOIN `clients` cl ON `projects`.`client_id` = cl.id  -- Se asume la relación entre `projects` y `clients`
+JOIN `clients` cl ON `projects`.`id` = cl.id  -- Se asume la relación entre `projects` y `clients`
 JOIN `socio_demographics` sd ON `participants`.`id` = sd.participant_id  -- Relación con socio_demographics
 WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%inteligencias%'
 AND `construct_metrics_decimal`.`value` > 0
