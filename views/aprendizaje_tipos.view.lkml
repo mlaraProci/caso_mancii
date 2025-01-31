@@ -17,21 +17,22 @@ JOIN `construct_metrics` ON `construct_metrics`.`construct_id` = `constructs`.`i
 JOIN `participants` ON `participants`.`id` = `construct_metrics`.`participant_id`
 JOIN `construct_metrics_decimal` ON `construct_metrics`.`id` = `construct_metrics_decimal`.`metric_id`
 JOIN `clients` cl ON `projects`.`client_id` = cl.id  -- Relación con la tabla `clients`
-JOIN `schools_data` sd ON `participants`.`school_id` = sd.id  -- Relación con la tabla `schools_data`
-WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%aprendizaje%'
-  AND `construct_metrics_decimal`.`value` > 0
-  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+JOIN `socio_demographics` sd ON `participants`.`id` = sd.participant_id  -- Cambio de `schools_data` a `socio_demographics`
+WHERE LOWER(TRIM(`constructs`.`name`)) LIKE '%aprendizaje%' -- Filtramos por el nombre del constructo
+  AND `construct_metrics_decimal`.`value` > 0 -- Filtramos valores mayores a 0
+  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%')) -- Filtro dinámico para el acrónimo del cliente
   AND (
-      '{{ _user_attributes['city'] }}' IS NULL
-      OR '{{ _user_attributes['city'] }}' = ''
-      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      '{{ _user_attributes["city"] }}' IS NULL
+      OR '{{ _user_attributes["city"] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["city"] }}', '%'))
   )
   AND (
-      '{{ _user_attributes['school'] }}' IS NULL
-      OR '{{ _user_attributes['school'] }}' = ''
-      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      '{{ _user_attributes["school"] }}' IS NULL
+      OR '{{ _user_attributes["school"] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["school"] }}', '%'))
   )
-GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`, value_category;;
+GROUP BY HEX(`participants`.`id`), `participants`.`name`, `construct_metrics`.`kind`, `construct_metrics_decimal`.`value`;
+;;
   }
 
   dimension: id {
