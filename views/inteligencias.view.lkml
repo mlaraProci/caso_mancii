@@ -17,12 +17,13 @@ MAX(CASE WHEN cm.kind = 'Inteligencia_existencial' THEN cmd.value END) AS Inteli
 MAX(CASE WHEN cm.kind = 'Inteligencia_logicomatematica' THEN cmd.value END) AS Inteligencia_logicomatematica
 FROM constructs c
 JOIN projects pr ON pr.id = c.project_id
-JOIN project pc ON pc.id = pr.id
+JOIN project_clients pc ON pc.project_id = pr.id
 JOIN clients cl ON cl.id = pc.client_id
 JOIN construct_metrics cm ON cm.construct_id = c.id
 JOIN participants p ON p.id = cm.participant_id
 JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
-LEFT JOIN socio_demographics sd ON sd.participant_id = p.id  -- Cambio de `student_data` a `socio_demographics`
+LEFT JOIN socio_demographics sd ON sd.participant_id = p.id
+ `socio_demographics`
 WHERE LOWER(TRIM(c.name)) LIKE '%inteligencias%'  -- Filtramos por el nombre del constructo
   AND cmd.value > 0  -- Filtramos valores mayores a 0
   AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
