@@ -36,10 +36,25 @@ view: estadisticas_agregadas_para_inteligencias {
         ) AS third_quartile  -- Tercer cuartil
 FROM constructs c
 JOIN projects pr ON pr.id = c.project_id
+JOIN project_clients pc ON pr.id = pc.project_id
+JOIN clients cl ON pc.client_id = cl.id
 JOIN construct_metrics cm ON cm.construct_id = c.id
+JOIN participants p ON p.id = cm.participant_id
 JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
-WHERE TRIM(LOWER(pr.title)) LIKE 'previous-test'  -- Filtrar por el proyecto "previous-test"
-  AND TRIM(LOWER(c.name)) LIKE '%inteligencias%'  -- Filtrar constructos relacionados con "inteligencias"
+LEFT JOIN socio_demographics sd ON p.id = sd.participant_id
+WHERE TRIM(LOWER(c.name)) LIKE '%tipos de inteligencias%'
+  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+  AND (
+    '{{ _user_attributes['city'] }}' IS NULL
+    OR '{{ _user_attributes['city'] }}' = ''
+    OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+  )
+  AND (
+    '{{ _user_attributes['school'] }}' IS NULL
+    OR '{{ _user_attributes['school'] }}' = ''
+    OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+  )
+-- Filtrar constructos relacionados con "inteligencias"
   AND cmd.value > 0  -- Considerar solo valores positivos
 GROUP BY cm.kind;  -- Agrupación por tipo de métrica
 ;

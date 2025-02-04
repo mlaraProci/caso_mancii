@@ -35,14 +35,7 @@ WHERE LOWER(TRIM(c.name)) LIKE '%tipos de inteligencias%'
     OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
   )
   AND cmd.value > 0
-GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acronym
-
-
-
-
-
-
- ;;
+GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acronym;;
   }
 
   dimension: id {

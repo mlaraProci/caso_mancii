@@ -23,7 +23,7 @@ JOIN `participants` p ON p.id = cm.participant_id
 JOIN `construct_metrics_decimal` cmd ON cm.id = cmd.metric_id
 LEFT JOIN `socio_demographics` sd ON p.id = sd.participant_id
 WHERE LOWER(TRIM(c.name)) LIKE  '%personalidad%'
-  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+  AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', 'ucc', '%'))
   AND (
     '{{ _user_attributes['city'] }}' IS NULL
     OR '{{ _user_attributes['city'] }}' = ''
