@@ -47,6 +47,7 @@ explore: estadisticas_agregadas_para_inteligencias {}
 explore: estadisticas_agregadas_para_areas_de_conocimiento {}
 
 explore: estadisticas_agregadas_para_valores {}
+
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {
@@ -690,7 +691,53 @@ explore: metrics_parameters {
   }
 }
 
-explore: participants {}
+explore: participants {
+  join: socio_demographics {
+    type: left_outer
+    sql_on: ${socio_demographics.participant_id} = ${participants.id} ;;
+    relationship: many_to_one
+  }
+  join: construct_metrics {
+    type: left_outer
+    sql_on: ${participants.id} = ${construct_metrics.participant_id} ;;
+    relationship: one_to_many
+  }
+
+  join: constructs {
+    type: left_outer
+    sql_on: ${construct_metrics.construct_id} = ${constructs.id} ;;
+    relationship: one_to_many
+  }
+
+  join: projects {
+    type: left_outer
+    sql_on: ${constructs.project_id} = ${projects.id} ;;
+    relationship: one_to_many
+  }
+
+  join: project_clients {
+    type: left_outer
+    sql_on: ${projects.id} = ${project_clients.project_id} ;;
+    relationship: one_to_many
+  }
+
+  join: clients  {
+    type: left_outer
+    sql_on: ${project_clients.client_id} = ${clients.id} ;;
+    relationship: one_to_many
+  }
+
+  sql_always_where:
+  {% if _user_attributes['client_acronym'] %}
+  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
+  {% endif %}
+  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
+  {% endif %}
+  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} = '{{ _user_attributes['city'] | escape }}'
+  {% endif %};;
+}
 
 explore: predictive_correlation_coefficient {
   join: questions {
@@ -777,14 +824,6 @@ explore: root_mean_square_error {
   }
 }
 
-explore: socio_demographics {
-  join: participants {
-    type: left_outer
-    sql_on: ${socio_demographics.participant_id} = ${participants.id} ;;
-    relationship: many_to_one
-  }
-}
-
 explore: utm_parameters {
   join: devices {
     type: left_outer
@@ -829,4 +868,55 @@ explore: validity_evidence {
     sql_on: ${constructs.project_id} = ${projects.id} ;;
     relationship: many_to_one
   }
+}
+
+explore: socio_demographics {
+  join: participants {
+    type: left_outer
+    sql_on: ${socio_demographics.participant_id} = ${participants.id} ;;
+    relationship: many_to_one
+  }
+
+  join: construct_metrics {
+    type: left_outer
+    sql_on: ${participants.id} = ${construct_metrics.participant_id} ;;
+    relationship: one_to_many
+  }
+
+  join: constructs {
+    type: left_outer
+    sql_on: ${construct_metrics.construct_id} = ${constructs.id} ;;
+    relationship: one_to_many
+  }
+
+  join: projects {
+    type: left_outer
+    sql_on: ${constructs.project_id} = ${projects.id} ;;
+    relationship: one_to_many
+  }
+
+  join: project_clients {
+    type: left_outer
+    sql_on: ${projects.id} = ${project_clients.project_id} ;;
+    relationship: one_to_many
+  }
+
+  join: clients  {
+    type: left_outer
+    sql_on: ${project_clients.client_id} = ${clients.id} ;;
+    relationship: one_to_many
+  }
+
+  sql_always_where:
+  {% if _user_attributes['client_acronym'] %}
+  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
+  {% endif %}
+  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
+  {% endif %}
+  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} = '{{ _user_attributes['city'] | escape }}'
+  {% endif %}
+  ;;
+
 }

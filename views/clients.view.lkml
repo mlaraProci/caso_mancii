@@ -23,6 +23,10 @@ view: clients {
     type: string
     sql: ${TABLE}.name ;;
   }
+  dimension: acronym {
+    type: string
+    sql: ${TABLE}.acronym ;;
+  }
   dimension_group: updated {
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
