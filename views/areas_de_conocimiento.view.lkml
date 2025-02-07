@@ -4,18 +4,16 @@ view: areas_de_conocimiento {
     HEX(p.`id`) AS `id`,
     MAX(p.`name`) AS `name`, -- Selecciona el nombre máximo en caso de duplicados
     LOWER(TRIM(cm.`kind`)) AS `kind`,
-    MAX(cmd.`value`) AS `value`,
-    MAX(ua.`attribute_value`) AS `user_attribute` -- Agregamos el campo de user_attributes
+    MAX(cmd.`value`) AS `value`
 FROM `constructs` c
 JOIN `projects` pr ON pr.`id` = c.`project_id`
+JOIN `project_clients` prc ON prc.project_id = pr.id
 JOIN `construct_metrics` cm ON cm.`construct_id` = c.`id`
 JOIN `participants` p ON p.`id` = cm.`participant_id`
 JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
-LEFT JOIN `user_attributes` ua ON ua.`user_id` = p.`id` -- Relación con user_attributes
-JOIN `clients` cl ON pr.`client_id` = cl.`id`  -- Relación con la tabla clients
-JOIN `schools_data` sd ON p.`school_id` = sd.`id`  -- Relación con la tabla schools_data
-WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
-  AND LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
+JOIN `clients` cl ON prc.`client_id` = cl.`id`
+JOIN `socio_demographics` sd ON p.`id` = sd.`participant_id`
+WHERE LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
   AND cmd.`value` > 0
   AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
   AND (
