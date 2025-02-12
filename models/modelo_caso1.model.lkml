@@ -728,15 +728,15 @@ explore: participants {
   }
 
   sql_always_where:
-  {% if _user_attributes['client_acronym'] %}
-  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
-  {% endif %}
-  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
-      AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
-  {% endif %}
-  {% if _user_attributes['city'] %}
-    ${socio_demographics.city} LIKE '%bogotá%'
-  {% endif %};;
+    ${clients.acronym} LIKE CONCAT('%',
+      '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+      '%')
+    AND ${socio_demographics.city} LIKE CONCAT('%',
+      '{% if _user_attributes['city'] %}{{ _user_attributes["city"] | escape }}{% else %}%%{% endif %}',
+      '%')
+    AND ${socio_demographics.school} LIKE CONCAT('%',
+      '{% if _user_attributes['school'] %}{{ _user_attributes["school"] | escape }}{% else %}%%{% endif %}',
+      '%');;
 }
 
 explore: predictive_correlation_coefficient {
@@ -908,15 +908,14 @@ explore: socio_demographics {
   }
 
   sql_always_where:
-  {% if _user_attributes['client_acronym'] %}
-  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
-  {% endif %}
-  {% if _user_attributes['city'] %}
-    ${socio_demographics.city} LIKE '%bogotá%'
-  {% endif %}
-  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
-      AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
-  {% endif %}
-  ;;
+    ${clients.acronym} LIKE CONCAT('%',
+    '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+    '%')
+    AND ${socio_demographics.city} LIKE CONCAT('%',
+    '{% if _user_attributes['city'] %}{{ _user_attributes["city"] | escape }}{% else %}%%{% endif %}',
+    '%')
+    AND ${socio_demographics.school} LIKE CONCAT('%',
+    '{% if _user_attributes['school'] %}{{ _user_attributes["school"] | escape }}{% else %}%%{% endif %}',
+    '%');;
 
 }
