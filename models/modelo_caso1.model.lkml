@@ -734,8 +734,8 @@ explore: participants {
   {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
   {% endif %}
-  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} = '{{ _user_attributes['city'] | escape }}'
+  {% if _user_attributes['city'] %}
+    ${socio_demographics.city} LIKE '%bogotá%'
   {% endif %};;
 }
 
