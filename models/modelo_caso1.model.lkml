@@ -729,14 +729,14 @@ explore: participants {
 
   sql_always_where:
     ${clients.acronym} LIKE CONCAT('%',
-      '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
-      '%')
-    AND ${socio_demographics.city} LIKE CONCAT('%',
-      '{% if _user_attributes['city'] %}{{ _user_attributes["city"] | escape }}{% else %}%%{% endif %}',
-      '%')
-    AND ${socio_demographics.school} LIKE CONCAT('%',
-      '{% if _user_attributes['school'] %}{{ _user_attributes["school"] | escape }}{% else %}%%{% endif %}',
-      '%');;
+    '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+    '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% endif %}
+    {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+    {% endif %};;
 }
 
 explore: predictive_correlation_coefficient {
@@ -911,11 +911,11 @@ explore: socio_demographics {
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
     '%')
-    AND ${socio_demographics.city} LIKE CONCAT('%',
-    '{% if _user_attributes['city'] %}{{ _user_attributes["city"] | escape }}{% else %}%%{% endif %}',
-    '%')
-    AND ${socio_demographics.school} LIKE CONCAT('%',
-    '{% if _user_attributes['school'] %}{{ _user_attributes["school"] | escape }}{% else %}%%{% endif %}',
-    '%');;
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% endif %}
+    {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+    {% endif %};;
 
 }
