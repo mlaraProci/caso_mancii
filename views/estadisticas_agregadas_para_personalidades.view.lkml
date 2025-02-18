@@ -29,7 +29,8 @@ view: estadisticas_agregadas_para_personalidades {
         SUBSTRING_INDEX(
             GROUP_CONCAT(cmd.`value` ORDER BY cmd.`value`),
             ',',
-            ROUND(0.75 * COUNT(cmd.`value`))
+            ROUND(0.7
+            5 * COUNT(cmd.`value`))
         ),
         ',',
         -1

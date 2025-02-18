@@ -16,6 +16,11 @@ explore: personalidades {}
 
 explore: tipos_de_aprendizaje {}
 
+explore: areas_de_conocimientov2 {
+  label: "Áreas de Conocimientov2"
+  description: "Exploración de datos basada en las áreas de conocimiento v2"
+}
+
 explore: type_of_learning {}
 
 explore: personality {}
