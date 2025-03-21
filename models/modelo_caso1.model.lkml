@@ -741,15 +741,16 @@ explore: participants {
   }
 
   sql_always_where:
-  {% if _user_attributes['client_acronym'] %}
-  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
-  {% endif %}
-  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
-      AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
-  {% endif %}
-  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} = '{{ _user_attributes['city'] | escape }}'
-  {% endif %};;
+    ${clients.acronym} LIKE CONCAT('%',
+    '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+    '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% endif %}
+    {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+    {% endif %};;
 }
 
 explore: predictive_correlation_coefficient {
@@ -921,15 +922,15 @@ explore: socio_demographics {
   }
 
   sql_always_where:
-  {% if _user_attributes['client_acronym'] %}
-  ${clients.acronym} LIKE CONCAT('%', '{{ _user_attributes['client_acronym'] | escape }}', '%')
-  {% endif %}
-  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
-      AND ${socio_demographics.school} = '{{ _user_attributes['school'] | escape }}'
-  {% endif %}
-  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} = '{{ _user_attributes['city'] | escape }}'
-  {% endif %}
-  ;;
+    ${clients.acronym} LIKE CONCAT('%',
+    '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+    '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
+      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% endif %}
+    {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+      AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+    {% endif %};;
 
 }
