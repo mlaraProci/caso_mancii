@@ -21,6 +21,11 @@ WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
       OR '{{ _user_attributes['city'] }}' = ''
       OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
   )
+  OR (
+    '{{ _user_attributes['city'] }}' IS NULL
+    OR '{{ _user_attributes['city'] }}' = ''
+    OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+  )
   AND (
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''

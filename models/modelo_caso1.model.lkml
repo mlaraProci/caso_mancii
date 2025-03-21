@@ -733,6 +733,7 @@ explore: participants {
     '%')
     {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
       AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
@@ -913,6 +914,7 @@ explore: socio_demographics {
     '%')
     {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
       AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
