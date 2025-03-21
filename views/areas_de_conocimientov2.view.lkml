@@ -16,10 +16,29 @@ view: areas_de_conocimientov2 {
         MAX(CASE WHEN cm.kind like '%sociales%' THEN cmd.value END) AS sociales
       FROM constructs c
       JOIN construct_metrics cm ON cm.construct_id = c.id
+
+
       JOIN participants p ON p.id = cm.participant_id
+      JOIN `socio_demographics` sd ON p.id = sd.participant_id
       JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
+
       WHERE cmd.value > 0
-        -- Filtro ajustado
+      AND (
+        '{{ _user_attributes['city'] }}' IS NULL
+        OR '{{ _user_attributes['city'] }}' = ''
+        OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      )
+      OR (
+        '{{ _user_attributes['city'] }}' IS NULL
+        OR '{{ _user_attributes['city'] }}' = ''
+        OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      )
+      AND (
+        '{{ _user_attributes['school'] }}' IS NULL
+        OR '{{ _user_attributes['school'] }}' = ''
+        OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
+
       GROUP BY HEX(p.id), p.name, cm.kind, cmd.value
     ;;
   }
