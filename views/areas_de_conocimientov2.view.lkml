@@ -6,20 +6,20 @@ view: areas_de_conocimientov2 {
         p.name AS name,
         LOWER(TRIM(cm.kind)) AS kind,
         cmd.value AS value,
-        MAX(CASE WHEN cm.kind = 'agronomia' THEN cmd.value END) AS agronomia,
-        MAX(CASE WHEN cm.kind = 'bellas_artes' THEN cmd.value END) AS bellas_artes,
-        MAX(CASE WHEN cm.kind = 'economia' THEN cmd.value END) AS economia,
-        MAX(CASE WHEN cm.kind = 'educacion' THEN cmd.value END) AS educacion,
-        MAX(CASE WHEN cm.kind = 'ingenieria' THEN cmd.value END) AS ingenieria,
-        MAX(CASE WHEN cm.kind = 'matematicas' THEN cmd.value END) AS matematicas,
-        MAX(CASE WHEN cm.kind = 'salud' THEN cmd.value END) AS salud,
-        MAX(CASE WHEN cm.kind = 'sociales' THEN cmd.value END) AS sociales
+        MAX(CASE WHEN cm.kind like '%agronomia%' THEN cmd.value END) AS agronomia,
+        MAX(CASE WHEN cm.kind like '%bellas_artes%' THEN cmd.value END) AS bellas_artes,
+        MAX(CASE WHEN cm.kind like '%economia%' THEN cmd.value END) AS economia,
+        MAX(CASE WHEN cm.kind like '%educacion%' THEN cmd.value END) AS educacion,
+        MAX(CASE WHEN cm.kind like '%ingenieria%' THEN cmd.value END) AS ingenieria,
+        MAX(CASE WHEN cm.kind like '%matematicas%' THEN cmd.value END) AS matematicas,
+        MAX(CASE WHEN cm.kind like '%salud%' THEN cmd.value END) AS salud,
+        MAX(CASE WHEN cm.kind like '%sociales%' THEN cmd.value END) AS sociales
       FROM constructs c
       JOIN construct_metrics cm ON cm.construct_id = c.id
       JOIN participants p ON p.id = cm.participant_id
       JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
       WHERE cmd.value > 0
-        AND LOWER(TRIM(c.name)) LIKE '%conocimiento%'  -- Filtro ajustado
+        -- Filtro ajustado
       GROUP BY HEX(p.id), p.name, cm.kind, cmd.value
     ;;
   }
