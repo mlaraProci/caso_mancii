@@ -14,13 +14,15 @@ explore: consulta_1 {}
 
 explore: personalidades {}
 
+explore: personalidades3 {}
+
 explore: tipos_de_aprendizaje {}
 
 explore: personalidad2 {}
 
 explore: areas_de_conocimientov2 {
-  label: "Áreas de Conocimientov2"
-  description: "Exploración de datos basada en las áreas de conocimiento v2"
+}
+explore: areas_de_conocimientov3 {
 }
 
 explore: type_of_learning {}
@@ -28,6 +30,10 @@ explore: type_of_learning {}
 explore: personality {}
 
 explore: carreras {}
+
+explore: carreras2 {}
+
+explore: carreras3 {}
 
 explore:  career_frequencies{}
 
