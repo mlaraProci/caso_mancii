@@ -31,6 +31,8 @@ explore: personality {}
 
 explore: carreras {}
 
+explore: carrerasS {}
+
 explore: carreras2 {}
 
 explore: carreras3 {}
