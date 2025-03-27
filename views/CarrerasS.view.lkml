@@ -1,5 +1,4 @@
 view: carrerasS {
-
   derived_table: {
     sql:
       WITH RECURSIVE numbers AS (
@@ -10,13 +9,37 @@ view: carrerasS {
 
       extracted_careers AS (
       SELECT
-      id,
-      TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
-      FROM socio_demographics
+      sd.id AS id,
+      sd.participant_id AS participant_id,
+      TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
+      FROM socio_demographics sd
+      JOIN (
+      SELECT
+      participant_id,
+      construct_id,
+      ROW_NUMBER() OVER (PARTITION BY participant_id ORDER BY id DESC) AS rn
+      FROM construct_metrics
+      ) cm ON cm.participant_id = sd.participant_id AND cm.rn = 1
+      JOIN `constructs` c ON c.id = cm.construct_id
+      JOIN `projects` pr ON pr.id = c.project_id
+      JOIN `project_clients` pc ON pr.id = pc.project_id
+      JOIN `clients` cl ON pc.client_id = cl.id
       CROSS JOIN numbers
       WHERE
-      preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
-      AND REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n) IS NOT NULL
+      sd.preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
+      AND REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n) IS NOT NULL
+      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
+      AND (
+      '{{ _user_attributes['city'] }}' IS NULL
+      OR '{{ _user_attributes['city'] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      )
+      AND (
+      '{{ _user_attributes['school'] }}' IS NULL
+      OR '{{ _user_attributes['school'] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
       ),
 
       cleaned_careers AS (
