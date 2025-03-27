@@ -1,5 +1,4 @@
 view: carrerasS {
-
   derived_table: {
     sql:
       WITH RECURSIVE numbers AS (
@@ -11,12 +10,26 @@ view: carrerasS {
       extracted_careers AS (
       SELECT
       id,
+      client_acronym,
+      city,
+      school,
       TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
       FROM socio_demographics
       CROSS JOIN numbers
       WHERE
       preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
       AND REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n) IS NOT NULL
+      AND LOWER(TRIM(client_acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
+      AND (
+      '{{ _user_attributes["city"] }}' IS NULL
+      OR '{{ _user_attributes["city"] }}' = ''
+      OR TRIM(LOWER(city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["city"] }}', '%'))
+      )
+      AND (
+      '{{ _user_attributes["school"] }}' IS NULL
+      OR '{{ _user_attributes["school"] }}' = ''
+      OR TRIM(LOWER(school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["school"] }}', '%'))
+      )
       ),
 
       cleaned_careers AS (
