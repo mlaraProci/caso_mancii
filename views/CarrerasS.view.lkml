@@ -82,9 +82,9 @@ view: carrerasS {
       WHEN career_clean LIKE '%contadur%' THEN 'contabilidad'
       ELSE career_clean
       END AS carrera,
-      GROUP_CONCAT(DISTINCT city ORDER BY city SEPARATOR ', ') AS cities,
-      GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ', ') AS countries,
-      GROUP_CONCAT(DISTINCT school ORDER BY school SEPARATOR ', ') AS schools,
+      GROUP_CONCAT(DISTINCT city ORDER BY city SEPARATOR ', ') AS city,
+      GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ', ') AS country,
+      GROUP_CONCAT(DISTINCT school ORDER BY school SEPARATOR ', ') AS school,
 
       COUNT(*) AS frecuencia
       FROM cleaned_careers
@@ -93,9 +93,9 @@ view: carrerasS {
 
       SELECT
       carrera,
-      cities,
-      countries,
-      schools,
+      city,
+      country,
+      school,
       frecuencia,
       ROUND(frecuencia * 100.0 / SUM(frecuencia) OVER (), 2) AS porcentaje
       FROM grouped_careers
@@ -123,19 +123,19 @@ view: carrerasS {
 
   dimension: cities {
     type: string
-    sql: ${TABLE}.cities ;;
+    sql: ${TABLE}.city ;;
     description: "Ciudades donde esta carrera fue mencionada"
   }
 
   dimension: countries {
     type: string
-    sql: ${TABLE}.countries ;;
+    sql: ${TABLE}.country ;;
     description: "Países donde esta carrera fue mencionada"
   }
 
   dimension: schools {
     type: string
-    sql: ${TABLE}.schools ;;
+    sql: ${TABLE}.school ;;
     description: "Colegios donde esta carrera fue mencionada"
   }
 
