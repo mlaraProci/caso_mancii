@@ -9,32 +9,49 @@ view: carrerasS {
 
       extracted_careers AS (
       SELECT
-      id,
-      client_acronym,
-      city,
-      school,
-      TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
-      FROM socio_demographics
+      sd.id AS id,
+      sd.school AS school,
+      sd.city AS city,
+      sd.country AS country,
+      sd.grade AS grade,
+      sd.participant_id AS participant_id,
+      TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
+      FROM socio_demographics sd
+      JOIN (
+      SELECT
+      participant_id,
+      construct_id,
+      ROW_NUMBER() OVER (PARTITION BY participant_id ORDER BY id DESC) AS rn
+      FROM construct_metrics
+      ) cm ON cm.participant_id = sd.participant_id AND cm.rn = 1
+      JOIN constructs c ON c.id = cm.construct_id
+      JOIN projects pr ON pr.id = c.project_id
+      JOIN project_clients pc ON pr.id = pc.project_id
+      JOIN clients cl ON pc.client_id = cl.id
       CROSS JOIN numbers
       WHERE
-      preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
-      AND REGEXP_SUBSTR(preferred_careers, '[^",]+', 1, n) IS NOT NULL
-      AND LOWER(TRIM(client_acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
+      sd.preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
+      AND REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n) IS NOT NULL
+      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
       AND (
-      '{{ _user_attributes["city"] }}' IS NULL
-      OR '{{ _user_attributes["city"] }}' = ''
-      OR TRIM(LOWER(city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["city"] }}', '%'))
+      '{{ _user_attributes['city'] }}' IS NULL
+      OR '{{ _user_attributes['city'] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
       )
       AND (
-      '{{ _user_attributes["school"] }}' IS NULL
-      OR '{{ _user_attributes["school"] }}' = ''
-      OR TRIM(LOWER(school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["school"] }}', '%'))
+      '{{ _user_attributes['school'] }}' IS NULL
+      OR '{{ _user_attributes['school'] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
       )
       ),
 
       cleaned_careers AS (
       SELECT
       id,
+      city,
+      country,
+      school,
       REGEXP_REPLACE(
       REGEXP_REPLACE(
       LOWER(career_raw),
@@ -65,6 +82,10 @@ view: carrerasS {
       WHEN career_clean LIKE '%contadur%' THEN 'contabilidad'
       ELSE career_clean
       END AS carrera,
+      GROUP_CONCAT(DISTINCT city ORDER BY city SEPARATOR ', ') AS cities,
+      GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ', ') AS countries,
+      GROUP_CONCAT(DISTINCT school ORDER BY school SEPARATOR ', ') AS schools,
+
       COUNT(*) AS frecuencia
       FROM cleaned_careers
       GROUP BY 1
@@ -72,6 +93,9 @@ view: carrerasS {
 
       SELECT
       carrera,
+      cities,
+      countries,
+      schools,
       frecuencia,
       ROUND(frecuencia * 100.0 / SUM(frecuencia) OVER (), 2) AS porcentaje
       FROM grouped_careers
@@ -95,6 +119,24 @@ view: carrerasS {
     sql: ${TABLE}.porcentaje ;;
     description: "Porcentaje sobre el total de menciones"
     value_format_name: percent_2
+  }
+
+  dimension: cities {
+    type: string
+    sql: ${TABLE}.cities ;;
+    description: "Ciudades donde esta carrera fue mencionada"
+  }
+
+  dimension: countries {
+    type: string
+    sql: ${TABLE}.countries ;;
+    description: "Países donde esta carrera fue mencionada"
+  }
+
+  dimension: schools {
+    type: string
+    sql: ${TABLE}.schools ;;
+    description: "Colegios donde esta carrera fue mencionada"
   }
 
   measure: total_menciones {
