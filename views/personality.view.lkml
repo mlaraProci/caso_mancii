@@ -17,16 +17,15 @@ view: personality {
       WHERE
           LOWER(TRIM(constructs.name)) LIKE '%personalidad%'
           AND TRIM(LOWER(clients.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+        {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+          {% assign cities = _user_attributes['city'] | split: ',' %}
           AND (
-            '{{ _user_attributes['city'] }}' IS NULL
-            OR '{{ _user_attributes['city'] }}' = ''
-            OR TRIM(LOWER(socio_demographics.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+            {% for c in cities %}
+              TRIM(LOWER(socio_demographics.city)) LIKE LOWER(CONCAT('%', '{{ c | strip | escape }}', '%'))
+              {% unless forloop.last %} OR {% endunless %}
+            {% endfor %}
           )
-          OR (
-            '{{ _user_attributes['city'] }}' IS NULL
-            OR '{{ _user_attributes['city'] }}' = ''
-            OR TRIM(LOWER(socio_demographics.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-          )
+        {% endif %}
           AND (
             '{{ _user_attributes['school'] }}' IS NULL
             OR '{{ _user_attributes['school'] }}' = ''

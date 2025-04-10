@@ -567,9 +567,22 @@ explore: devices {
   ${clients.acronym} LIKE CONCAT('%',
   '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
   '%')
-  {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-  AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
-  OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+  {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+    {% assign cities = _user_attributes['city'] | split: ',' %}
+
+    AND (
+      {% assign conditions = '' %}
+      {% for c in cities %}
+        {% assign clean_city = c | strip | escape %}
+        {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+        {% if forloop.first %}
+          {% assign conditions = condition %}
+        {% else %}
+          {% assign conditions = conditions | append: ' OR ' | append: condition %}
+        {% endif %}
+      {% endfor %}
+      {{ conditions }}
+      )
   {% endif %}
   {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
   AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
@@ -778,9 +791,22 @@ explore: participants {
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
     '%')
-    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
-      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+      {% assign cities = _user_attributes['city'] | split: ',' %}
+
+      AND (
+        {% assign conditions = '' %}
+        {% for c in cities %}
+          {% assign clean_city = c | strip | escape %}
+          {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+          {% if forloop.first %}
+            {% assign conditions = condition %}
+          {% else %}
+            {% assign conditions = conditions | append: ' OR ' | append: condition %}
+          {% endif %}
+        {% endfor %}
+        {{ conditions }}
+      )
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
@@ -959,9 +985,22 @@ explore: socio_demographics {
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
     '%')
-    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
-      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+      {% assign cities = _user_attributes['city'] | split: ',' %}
+
+      AND (
+        {% assign conditions = '' %}
+        {% for c in cities %}
+          {% assign clean_city = c | strip | escape %}
+          {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+          {% if forloop.first %}
+            {% assign conditions = condition %}
+          {% else %}
+            {% assign conditions = conditions | append: ' OR ' | append: condition %}
+          {% endif %}
+        {% endfor %}
+        {{ conditions }}
+      )
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')

@@ -27,16 +27,15 @@ LEFT JOIN socio_demographics sd ON sd.participant_id = p.id
 WHERE LOWER(TRIM(c.name)) LIKE '%inteligencias%'  -- Filtramos por el nombre del constructo
   AND cmd.value > 0  -- Filtramos valores mayores a 0
   AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
-  AND (
-    '{{ _user_attributes["city"] }}' IS NULL
-    OR '{{ _user_attributes["city"] }}' = ''
-    OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["city"] }}', '%'))
-  )
-  OR (
-    '{{ _user_attributes['city'] }}' IS NULL
-    OR '{{ _user_attributes['city'] }}' = ''
-    OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-  )
+  {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+    {% assign cities = _user_attributes['city'] | split: ',' %}
+      AND (
+        {% for c in cities %}
+          TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ c | strip | escape }}', '%'))
+          {% unless forloop.last %} OR {% endunless %}
+        {% endfor %}
+      )
+  {% endif %}
   AND (
     '{{ _user_attributes["school"] }}' IS NULL
     OR '{{ _user_attributes["school"] }}' = ''
