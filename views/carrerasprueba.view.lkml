@@ -1,4 +1,5 @@
-view: carrerasS {
+view: carrerasprueba {
+
   derived_table: {
     sql:
       WITH RECURSIVE numbers AS (
@@ -9,30 +10,19 @@ view: carrerasS {
 
       extracted_careers AS (
       SELECT
-      sd.id AS id,
-      sd.school AS school,
-      sd.city AS city,
-      sd.country AS country,
-      sd.grade AS grade,
-      sd.participant_id AS participant_id,
-      TRIM(LOWER(REGEXP_REPLACE(REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', ''))) AS career_raw
+      sd.id,
+      TRIM(REGEXP_REPLACE(REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n), '[\\[\\]"]', '')) AS career_raw
       FROM socio_demographics sd
-      JOIN (
-      SELECT
-      participant_id,
-      construct_id,
-      ROW_NUMBER() OVER (PARTITION BY participant_id ORDER BY id DESC) AS rn
-      FROM construct_metrics
-      ) cm ON cm.participant_id = sd.participant_id AND cm.rn = 1
-      JOIN constructs c ON c.id = cm.construct_id
-      JOIN projects pr ON pr.id = c.project_id
-      JOIN project_clients pc ON pr.id = pc.project_id
-      JOIN clients cl ON pc.client_id = cl.id
+      JOIN participants p ON p.id = sd.participant_id
+      JOIN project_participants pp ON pp.participant_id = p.id
+      JOIN projects pr ON pr.id = pp.project_id
+      JOIN project_clients pc ON pc.project_id = pr.id
+      JOIN clients c ON c.id = pc.client_id
       CROSS JOIN numbers
       WHERE
       sd.preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
       AND REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n) IS NOT NULL
-      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
+      AND TRIM(LOWER(c.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
       AND (
       '{{ _user_attributes['city'] }}' IS NULL
       OR '{{ _user_attributes['city'] }}' = ''
@@ -49,9 +39,6 @@ view: carrerasS {
       cleaned_careers AS (
       SELECT
       id,
-      city,
-      country,
-      school,
       REGEXP_REPLACE(
       REGEXP_REPLACE(
       LOWER(career_raw),
@@ -82,10 +69,6 @@ view: carrerasS {
       WHEN career_clean LIKE '%contadur%' THEN 'contabilidad'
       ELSE career_clean
       END AS carrera,
-      GROUP_CONCAT(DISTINCT city ORDER BY city SEPARATOR ', ') AS city,
-      GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ', ') AS country,
-      GROUP_CONCAT(DISTINCT school ORDER BY school SEPARATOR ', ') AS school,
-
       COUNT(*) AS frecuencia
       FROM cleaned_careers
       GROUP BY 1
@@ -93,9 +76,6 @@ view: carrerasS {
 
       SELECT
       carrera,
-      city,
-      country,
-      school,
       frecuencia,
       ROUND(frecuencia * 100.0 / SUM(frecuencia) OVER (), 2) AS porcentaje
       FROM grouped_careers
@@ -119,24 +99,6 @@ view: carrerasS {
     sql: ${TABLE}.porcentaje ;;
     description: "Porcentaje sobre el total de menciones"
     value_format_name: percent_2
-  }
-
-  dimension: cities {
-    type: string
-    sql: ${TABLE}.city ;;
-    description: "Ciudades donde esta carrera fue mencionada"
-  }
-
-  dimension: countries {
-    type: string
-    sql: ${TABLE}.country ;;
-    description: "Países donde esta carrera fue mencionada"
-  }
-
-  dimension: schools {
-    type: string
-    sql: ${TABLE}.school ;;
-    description: "Colegios donde esta carrera fue mencionada"
   }
 
   measure: total_menciones {

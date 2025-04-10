@@ -18,6 +18,8 @@ explore: personalidades3 {}
 
 explore: tipos_de_aprendizaje {}
 
+explore: aprendizaje {}
+
 explore: personalidad2 {}
 
 explore: areas_de_conocimientov2 {
@@ -27,6 +29,8 @@ explore: areas_de_conocimientov3 {
 
 explore: type_of_learning {}
 
+explore: VistaTypesPersonas {}
+
 explore: personality {}
 
 explore: carreras {}
@@ -34,8 +38,6 @@ explore: carreras {}
 explore: carrerasS {}
 
 explore: carreras2 {}
-
-explore: carreras3 {}
 
 explore:  career_frequencies{}
 
