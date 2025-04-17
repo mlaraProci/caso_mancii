@@ -1,43 +1,45 @@
-view: aprendizaje {
+view: aaprendizaje {
 
   derived_table: {
     sql:
       SELECT
         HEX(p.id) AS participant_id,
         p.name AS participant_name,
-        LOWER(TRIM(cm.kind)) AS raw_learning_type,
+
+        LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) AS raw_learning_type,
         cmd.value AS type_value,
 
-      CASE
-      WHEN LOWER(TRIM(cm.kind)) LIKE '%audit%' THEN 'Auditiva'
-      WHEN LOWER(TRIM(cm.kind)) LIKE '%visual%' THEN 'Visual'
-      WHEN LOWER(TRIM(cm.kind)) LIKE '%kinest%' THEN 'Kinestésica'
-      WHEN LOWER(TRIM(cm.kind)) LIKE '%lectura%' OR LOWER(TRIM(cm.kind)) LIKE '%escritura%' THEN 'Lectura/Escritura'
-      WHEN LOWER(TRIM(cm.kind)) LIKE '%social%' THEN 'Social'
-      ELSE 'Otro'
-      END AS learning_type,
+        CASE
+          WHEN LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%auditiv%' THEN 'Auditiva'
+          WHEN LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%visual%' THEN 'Visual'
+          WHEN LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%kinest%' THEN 'Kinestésica'
+          WHEN LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%lectura%' OR
+               LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%escritura%' THEN 'Lectura/Escritura'
+          WHEN LOWER(REPLACE(REPLACE(REPLACE(cm.kind, '\n', ''), '\r', ''), ' ', '')) LIKE '%social%' THEN 'Social'
+          ELSE 'Otro'
+        END AS learning_type,
 
-      CASE
-      WHEN cmd.value = 0 THEN 0
-      WHEN cmd.value <= 0.3 THEN 1
-      WHEN cmd.value <= 0.7 THEN 2
-      ELSE 3
-      END AS development_level,
+        CASE
+          WHEN cmd.value = 0 THEN 0
+          WHEN cmd.value <= 0.3 THEN 1
+          WHEN cmd.value <= 0.7 THEN 2
+          ELSE 3
+        END AS development_level,
 
-      CASE
-      WHEN cmd.value = 0 THEN 'No desarrollado'
-      WHEN cmd.value <= 0.3 THEN 'Desarrollo incipiente'
-      WHEN cmd.value <= 0.7 THEN 'Desarrollo medio'
-      ELSE 'Desarrollo avanzado'
-      END AS development_status,
+        CASE
+          WHEN cmd.value = 0 THEN 'No desarrollado'
+          WHEN cmd.value <= 0.3 THEN 'Desarrollo incipiente'
+          WHEN cmd.value <= 0.7 THEN 'Desarrollo medio'
+          ELSE 'Desarrollo avanzado'
+        END AS development_status,
 
-      CASE WHEN cmd.value > 0.1 THEN TRUE ELSE FALSE END AS has_meaningful_development,
-      CASE WHEN cmd.value = 1 THEN TRUE ELSE FALSE END AS has_full_development,
+        CASE WHEN cmd.value > 0.1 THEN TRUE ELSE FALSE END AS has_meaningful_development,
+        CASE WHEN cmd.value = 1 THEN TRUE ELSE FALSE END AS has_full_development,
 
-      pr.title AS project_title,
-      cl.acronym AS client_acronym,
-      sd.city,
-      sd.school
+        pr.title AS project_title,
+        cl.acronym AS client_acronym,
+        sd.city,
+        sd.school
       FROM construct_metrics cm
       JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
       JOIN participants p ON p.id = cm.participant_id
@@ -47,20 +49,9 @@ view: aprendizaje {
       JOIN clients cl ON pc.client_id = cl.id
       LEFT JOIN socio_demographics sd ON p.id = sd.participant_id
       WHERE
-      LOWER(c.name) LIKE '%aprendizaje%'
-      AND LOWER(pr.title) LIKE '%vocacional%'
-      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
-      AND (
-      '{{ _user_attributes['city'] }}' IS NULL
-      OR '{{ _user_attributes['city'] }}' = ''
-      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-      OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-      )
-      AND (
-      '{{ _user_attributes['school'] }}' IS NULL
-      OR '{{ _user_attributes['school'] }}' = ''
-      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
-      )
+        LOWER(c.name) LIKE '%aprendizaje%'
+        AND LOWER(pr.title) LIKE '%vocacional%'
+        AND ('{{ _user_attributes.client_acronym }}' = '' OR LOWER(cl.acronym) LIKE LOWER(CONCAT('%', '{{ _user_attributes.client_acronym }}', '%')))
       ;;
   }
 

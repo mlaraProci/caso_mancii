@@ -20,6 +20,8 @@ explore: tipos_de_aprendizaje {}
 
 explore: aprendizaje {}
 
+explore: aaprendizaje {}
+
 explore: personalidad2 {}
 
 explore: areas_de_conocimientov2 {
