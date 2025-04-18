@@ -7,6 +7,11 @@ view: devices {
     type: string
     sql: ${TABLE}.id ;;
   }
+
+  dimension: participant_id {
+    type:  string
+    sql: ${TABLE}.participant_id ;;
+  }
   dimension: browser {
     type: string
     sql: ${TABLE}.browser ;;

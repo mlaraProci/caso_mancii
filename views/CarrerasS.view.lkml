@@ -32,13 +32,15 @@ view: carrerasS {
       WHERE
       sd.preferred_careers NOT IN ('Not Applicable', 'Not Answered', 'No sé', 'no se', 'no se que estudiar todavía', 'nose aun', 'aun no se')
       AND REGEXP_SUBSTR(sd.preferred_careers, '[^",]+', 1, n) IS NOT NULL
-      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
-      AND (
-      '{{ _user_attributes['city'] }}' IS NULL
-      OR '{{ _user_attributes['city'] }}' = ''
-      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-      OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
-      )
+      {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+        {% assign cities = _user_attributes['city'] | split: ',' %}
+        AND (
+          {% for c in cities %}
+            TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ c | strip | escape }}', '%'))
+            {% unless forloop.last %} OR {% endunless %}
+          {% endfor %}
+        )
+      {% endif %}
       AND (
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''

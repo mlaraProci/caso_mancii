@@ -20,8 +20,6 @@ explore: tipos_de_aprendizaje {}
 
 explore: aprendizaje {}
 
-explore: aaprendizaje {}
-
 explore: personalidad2 {}
 
 explore: areas_de_conocimientov2 {
@@ -523,22 +521,28 @@ explore: cronbach_alpha {
 }
 
 explore: devices {
-  join: interaction_metrics {
+  join: participants {
     type: left_outer
-    sql_on: ${devices.interaction_metrics_id} = ${interaction_metrics.id} ;;
+    sql_on: ${devices.participant_id} = ${participants.id} ;;
     relationship: many_to_one
+  }
+
+  join: socio_demographics {
+    type: left_outer
+    sql_on: ${socio_demographics.participant_id} = ${participants.id} ;;
+    relationship: many_to_one
+  }
+
+  join: construct_metrics {
+    type: left_outer
+    sql_on: ${participants.id} = ${construct_metrics.participant_id} ;;
+    relationship: one_to_many
   }
 
   join: constructs {
     type: left_outer
-    sql_on: ${interaction_metrics.construct_id} = ${constructs.id} ;;
-    relationship: many_to_one
-  }
-
-  join: participants {
-    type: left_outer
-    sql_on: ${interaction_metrics.participant_id} = ${participants.id} ;;
-    relationship: many_to_one
+    sql_on: ${construct_metrics.construct_id} = ${constructs.id} ;;
+    relationship: one_to_many
   }
 
   join: projects {
@@ -546,6 +550,43 @@ explore: devices {
     sql_on: ${constructs.project_id} = ${projects.id} ;;
     relationship: many_to_one
   }
+
+  join: project_clients {
+    type: left_outer
+    sql_on: ${projects.id} = ${project_clients.project_id} ;;
+    relationship: one_to_many
+  }
+
+  join: clients  {
+    type: left_outer
+    sql_on: ${project_clients.client_id} = ${clients.id} ;;
+    relationship: one_to_many
+  }
+
+  sql_always_where:
+  ${clients.acronym} LIKE CONCAT('%',
+  '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
+  '%')
+  {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+    {% assign cities = _user_attributes['city'] | split: ',' %}
+
+    AND (
+      {% assign conditions = '' %}
+      {% for c in cities %}
+        {% assign clean_city = c | strip | escape %}
+        {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+        {% if forloop.first %}
+          {% assign conditions = condition %}
+        {% else %}
+          {% assign conditions = conditions | append: ' OR ' | append: condition %}
+        {% endif %}
+      {% endfor %}
+      {{ conditions }}
+      )
+  {% endif %}
+  {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
+  AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+  {% endif %};;
 }
 
 explore: discrimination_index {
@@ -750,9 +791,22 @@ explore: participants {
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
     '%')
-    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
-      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+      {% assign cities = _user_attributes['city'] | split: ',' %}
+
+      AND (
+        {% assign conditions = '' %}
+        {% for c in cities %}
+          {% assign clean_city = c | strip | escape %}
+          {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+          {% if forloop.first %}
+            {% assign conditions = condition %}
+          {% else %}
+            {% assign conditions = conditions | append: ' OR ' | append: condition %}
+          {% endif %}
+        {% endfor %}
+        {{ conditions }}
+      )
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
@@ -931,9 +985,22 @@ explore: socio_demographics {
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
     '%')
-    {% if _user_attributes['city'] != null and _user_attributes['city'] != "" %}
-      AND ${socio_demographics.city} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
-      OR ${socio_demographics.country} LIKE CONCAT('%', '{{ _user_attributes['city'] | escape }}', '%')
+    {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
+      {% assign cities = _user_attributes['city'] | split: ',' %}
+
+      AND (
+        {% assign conditions = '' %}
+        {% for c in cities %}
+          {% assign clean_city = c | strip | escape %}
+          {% assign condition = "${socio_demographics.city} LIKE CONCAT('%', '" | append: clean_city | append: "', '%')" %}
+          {% if forloop.first %}
+            {% assign conditions = condition %}
+          {% else %}
+            {% assign conditions = conditions | append: ' OR ' | append: condition %}
+          {% endif %}
+        {% endfor %}
+        {{ conditions }}
+      )
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
