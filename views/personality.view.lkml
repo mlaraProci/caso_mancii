@@ -39,9 +39,9 @@ view: personality {
       participant_name AS name, -- Incluye el nombre del participante
       CASE
           WHEN kind LIKE '%Amabilidad%' THEN 'amabilidad'
-          WHEN kind LIKE '%experiencia%' THEN 'apertura_a_la_experiencia'
+          WHEN kind LIKE '%experiencia%' THEN 'apertura a la experiencia'
           WHEN kind LIKE '%Conciencia%' THEN 'conciencia'
-          WHEN kind LIKE '%Estabilidad emocional%' THEN 'estabilidad_emocional'
+          WHEN kind LIKE '%Estabilidad emocional%' THEN 'estabilidad emocional'
           WHEN kind LIKE '%Extraversion%' THEN 'extraversion'
           ELSE 'otros'
       END AS type,

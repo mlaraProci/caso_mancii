@@ -96,6 +96,23 @@ GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acr
     description: "Suma total de los valores de inteligencia"
   }
 
+  dimension_group: created {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.created_at ;;
+  }
+
+  dimension: grade {
+    type: string
+    sql: ${TABLE}.grade ;;
+  }
+
+  dimension: school {
+    type: string
+    sql: ${TABLE}.school ;;
+  }
+
+
   set: detail {
     fields: [
       id,

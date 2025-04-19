@@ -76,55 +76,55 @@ GROUP BY HEX(p.id), p.name, cm.kind, cmd.value
   # Medidas para cada tipo de inteligencia basadas en `kind`
   measure: Inteligencia_corporalkinestesica {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_corporalkinestesica' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia corporalkinestesica' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia corporal-kinestésica"
   }
 
   measure: Inteligencia_espacial {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_espacial' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia espacial' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia espacial"
   }
 
   measure: Inteligencia_existencial {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_existencial' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia existencial' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia existencial"
   }
 
   measure: Inteligencia_interpersonal {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_interpersonal' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia interpersonal' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia interpersonal"
   }
 
   measure: Inteligencia_intrapersonal {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_intrapersonal' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia intrapersonal' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia intrapersonal"
   }
 
   measure: Inteligencia_linguistica {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_linguistica' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia linguistica' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia lingüística"
   }
 
   measure: Inteligencia_logicomatematica {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_logicomatematica' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia logicomatematica' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia lógico-matemática"
   }
 
   measure: Inteligencia_musical {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_musical' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia musical' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia musical"
   }
 
   measure: Inteligencia_naturalista {
     type: sum
-    sql: CASE WHEN ${kind} = 'inteligencia_naturalista' THEN ${value} ELSE 0 END ;;
+    sql: CASE WHEN ${kind} = 'inteligencia naturalista' THEN ${value} ELSE 0 END ;;
     description: "Valor del tipo de inteligencia naturalista"
   }
   measure: count {
