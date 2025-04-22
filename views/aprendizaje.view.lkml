@@ -1,142 +1,167 @@
 view: aprendizaje {
+
   derived_table: {
     sql:
-      WITH base_data AS (
-        SELECT
-          p.id AS participant_id,
-          HEX(p.id) AS hashed_id,
-          p.name AS participant_name,
-          LOWER(TRIM(cm.kind)) AS learning_style,
-          pr.title AS project_title,
-          cl.id AS client_id,
-          cl.acronym AS client_acronym
-        FROM `constructs` c
-        JOIN `projects` pr ON pr.id = c.project_id
-        JOIN `project_clients` pc ON pr.id = pc.project_id
-        JOIN `clients` cl ON pc.client_id = cl.id
-        JOIN `construct_metrics` cm ON cm.construct_id = c.id
-        JOIN `participants` p ON p.id = cm.participant_id
-        LEFT JOIN `socio_demographics` sd ON p.id = sd.participant_id
-        WHERE LOWER(TRIM(c.name)) LIKE '%estilos de aprendizaje%'
-          AND TRIM(LOWER(pr.title)) LIKE '%vocacional%'
-          AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
-            {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
-              {% assign cities = _user_attributes['city'] | split: ',' %}
-              AND (
-                {% for c in cities %}
-                  TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ c | strip | escape }}', '%'))
-                  {% unless forloop.last %} OR {% endunless %}
-                {% endfor %}
-              )
-            {% endif %}
-          AND (
-            '{{ _user_attributes['school'] }}' IS NULL
-            OR '{{ _user_attributes['school'] }}' = ''
-            OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
-          )
-      ),
-      style_categories AS (
-        SELECT
-          CASE
-            WHEN learning_style LIKE '%audit%' THEN 'Auditivo'
-            WHEN learning_style LIKE '%lectura%' OR learning_style LIKE '%escritura%' THEN 'Lectura/Escritura'
-            WHEN learning_style LIKE '%kines%' OR learning_style LIKE '%cinest%' THEN 'Kinestésico'
-            WHEN learning_style LIKE '%visual%' THEN 'Visual'
-            WHEN learning_style LIKE '%social%' THEN 'Social'
-            ELSE 'Otro'
-          END AS style_type,
-          COUNT(*) AS style_count,
-          (SELECT COUNT(DISTINCT participant_id) FROM base_data) AS total_participants
-        FROM base_data
-        GROUP BY 1
-      )
       SELECT
-        style_type AS type,
-        style_count AS count_kind,
-        100.0 * style_count / NULLIF(total_participants, 0) AS percentage_scale,
-        CASE
-          WHEN 100.0 * style_count / NULLIF(total_participants, 0) < 20 THEN 'Poco común'
-          WHEN 100.0 * style_count / NULLIF(total_participants, 0) < 50 THEN 'Moderado'
-          ELSE 'Dominante'
-        END AS prevalence_category,
-        hashed_id  -- Añadido para poder contar participantes únicos
-      FROM style_categories
-      JOIN base_data ON style_categories.style_type = base_data.learning_style
-      WHERE style_type != 'Otro'
-      GROUP BY style_type, style_count, total_participants, hashed_id
-      ORDER BY style_count DESC;;
+        HEX(p.id) AS participant_id,
+        p.name AS participant_name,
+        LOWER(TRIM(cm.kind)) AS raw_learning_type,
+        cmd.value AS type_value,
+
+      CASE
+      WHEN LOWER(TRIM(cm.kind)) LIKE '%audit%' THEN 'Auditiva'
+      WHEN LOWER(TRIM(cm.kind)) LIKE '%visual%' THEN 'Visual'
+      WHEN LOWER(TRIM(cm.kind)) LIKE '%kinest%' THEN 'Kinestésica'
+      WHEN LOWER(TRIM(cm.kind)) LIKE '%lectura%' OR LOWER(TRIM(cm.kind)) LIKE '%escritura%' THEN 'Lectura/Escritura'
+      WHEN LOWER(TRIM(cm.kind)) LIKE '%social%' THEN 'Social'
+      ELSE 'Otro'
+      END AS learning_type,
+
+      CASE
+      WHEN cmd.value = 0 THEN 0
+      WHEN cmd.value <= 0.3 THEN 1
+      WHEN cmd.value <= 0.7 THEN 2
+      ELSE 3
+      END AS development_level,
+
+      CASE
+      WHEN cmd.value = 0 THEN 'No desarrollado'
+      WHEN cmd.value <= 0.3 THEN 'Desarrollo incipiente'
+      WHEN cmd.value <= 0.7 THEN 'Desarrollo medio'
+      ELSE 'Desarrollo avanzado'
+      END AS development_status,
+
+      CASE WHEN cmd.value > 0.1 THEN TRUE ELSE FALSE END AS has_meaningful_development,
+      CASE WHEN cmd.value = 1 THEN TRUE ELSE FALSE END AS has_full_development,
+
+      pr.title AS project_title,
+      cl.acronym AS client_acronym,
+      sd.city,
+      sd.school
+      FROM construct_metrics cm
+      JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
+      JOIN participants p ON p.id = cm.participant_id
+      JOIN constructs c ON cm.construct_id = c.id
+      JOIN projects pr ON c.project_id = pr.id
+      JOIN project_clients pc ON pr.id = pc.project_id
+      JOIN clients cl ON pc.client_id = cl.id
+      LEFT JOIN socio_demographics sd ON p.id = sd.participant_id
+      WHERE
+      LOWER(c.name) LIKE '%aprendizaje%'
+      AND LOWER(pr.title) LIKE '%vocacional%'
+      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
+      AND (
+      '{{ _user_attributes['city'] }}' IS NULL
+      OR '{{ _user_attributes['city'] }}' = ''
+      OR TRIM(LOWER(sd.city)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      OR TRIM(LOWER(sd.country)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['city'] }}', '%'))
+      )
+      AND (
+      '{{ _user_attributes['school'] }}' IS NULL
+      OR '{{ _user_attributes['school'] }}' = ''
+      OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
+      ;;
   }
 
-  dimension: type {
+  dimension: participant_id {
     type: string
-    sql: ${TABLE}.type ;;
-    description: "Estilo de aprendizaje (Auditivo, Visual, Kinestésico, etc.)"
+    sql: ${TABLE}.participant_id ;;
+    primary_key: yes
+  }
+
+  dimension: participant_name {
+    type: string
+    sql: ${TABLE}.participant_name ;;
+  }
+
+  dimension: learning_type {
+    type: string
+    sql: ${TABLE}.learning_type ;;
+  }
+
+  dimension: type_value {
+    type: number
+    sql: ${TABLE}.type_value ;;
+    value_format_name: decimal_2
+  }
+
+  dimension: development_level {
+    type: number
+    sql: ${TABLE}.development_level ;;
+    description: "0=Ninguno, 1=Incipiente, 2=Medio, 3=Avanzado"
+  }
+
+  dimension: development_status {
+    type: string
+    sql: ${TABLE}.development_status ;;
     html:
       CASE
-        WHEN {{ value }} = 'Auditivo' THEN
-          '<span style="color: #4285F4; font-weight: bold;">{{value}}</span>'
-        WHEN {{ value }} = 'Visual' THEN
-          '<span style="color: #EA4335; font-weight: bold;">{{value}}</span>'
-        WHEN {{ value }} = 'Kinestésico' THEN
-          '<span style="color: #FBBC05; font-weight: bold;">{{value}}</span>'
-        WHEN {{ value }} = 'Lectura/Escritura' THEN
-          '<span style="color: #34A853; font-weight: bold;">{{value}}</span>'
-        ELSE
-          '<span style="color: #9E9E9E; font-weight: bold;">{{value}}</span>'
+        WHEN {{ value }} = 'No desarrollado' THEN '<span style="color: #ff4d4d;">{{value}}</span>'
+        WHEN {{ value }} = 'Desarrollo incipiente' THEN '<span style="color: #ffcc00;">{{value}}</span>'
+        WHEN {{ value }} = 'Desarrollo medio' THEN '<span style="color: #4dff4d;">{{value}}</span>'
+        ELSE '<span style="color: #00cc00;">{{value}}</span>'
       END ;;
   }
 
-  dimension: count_kind {
+  dimension: client_acronym {
+    type: string
+    sql: ${TABLE}.client_acronym ;;
+  }
+
+  dimension: city {
+    type: string
+    sql: ${TABLE}.city ;;
+  }
+
+  dimension: school {
+    type: string
+    sql: ${TABLE}.school ;;
+  }
+
+  filter: has_development {
+    type: yesno
+    sql: ${TABLE}.has_meaningful_development ;;
+  }
+
+  filter: full_development {
+    type: yesno
+    sql: ${TABLE}.has_full_development ;;
+  }
+
+  measure: total_participants {
+    type: count_distinct
+    sql: ${participant_id} ;;
+  }
+
+  measure: developed_participants {
+    type: count_distinct
+    sql: ${participant_id} ;;
+    filters: [has_development: "yes"]
+  }
+
+  measure: development_percentage {
     type: number
-    sql: ${TABLE}.count_kind ;;
-    description: "Número de participantes con este estilo"
-  }
-
-  dimension: prevalence_category {
-    type: string
-    sql: ${TABLE}.prevalence_category ;;
-    description: "Categoría de prevalencia del estilo"
-  }
-
-  dimension: hashed_id {
-    type: string
-    sql: ${TABLE}.hashed_id ;;
-    hidden: yes
-    description: "ID hasheado del participante para conteos únicos"
-  }
-
-  measure: total_styles {
-    type: sum
-    sql: ${count_kind} ;;
-    description: "Total de estilos registrados (puede haber múltiples por persona)"
-  }
-
-  measure: scale {
-    type: average
-    sql: ${TABLE}.percentage_scale ;;
-    description: "Porcentaje promedio de cada estilo en la población"
+    sql: 100.0 * ${developed_participants} / NULLIF(${total_participants}, 0) ;;
     value_format_name: percent_1
   }
 
-  measure: unique_participants {
-    type: count_distinct
-    sql: ${hashed_id} ;;
-    description: "Número único de participantes con estilos registrados"
+  measure: avg_development {
+    type: average
+    sql: ${type_value} ;;
+    filters: [type_value: ">0"]
+    value_format_name: decimal_2
   }
 
-  set: style_analysis {
+  set: participant_overview {
     fields: [
-      type,
-      count_kind,
-      prevalence_category
-    ]
-  }
-
-  set: style_summary {
-    fields: [
-      total_styles,
-      unique_participants,
-      scale
+      participant_name,
+      learning_type,
+      development_status,
+      type_value,
+      client_acronym,
+      city,
+      school
     ]
   }
 }
