@@ -6,6 +6,7 @@ view: VistaTypesPersonas {
         participants.name AS name,
         socio_demographics.school AS school,
         socio_demographics.grade AS grade,
+        construct_metrics.kind AS kind,
         CASE
           WHEN construct_metrics.kind LIKE '%Amabilidad%' THEN 'amabilidad'
           WHEN construct_metrics.kind LIKE '%experiencia%' THEN 'apertura a la experiencia'
@@ -14,7 +15,16 @@ view: VistaTypesPersonas {
           WHEN construct_metrics.kind LIKE '%Extraversion%' THEN 'extraversion'
           ELSE 'otros'
         END AS type,
-        AVG(construct_metrics_decimal.value) AS value
+        AVG(construct_metrics_decimal.value) AS value,
+        CASE
+          WHEN AVG(construct_metrics_decimal.value) >= 0.7 THEN 'Alto'
+          WHEN AVG(construct_metrics_decimal.value) >= 0.5 THEN 'Medio'
+          ELSE 'Bajo'
+        END AS development_status,
+        CASE
+          WHEN AVG(construct_metrics_decimal.value) >= 0.5 THEN 1
+          ELSE 0
+        END AS is_developed
       FROM constructs
       JOIN projects ON projects.id = constructs.project_id
       JOIN project_clients ON project_clients.project_id = projects.id
@@ -48,6 +58,7 @@ view: VistaTypesPersonas {
       participants.name,
       socio_demographics.school,
       socio_demographics.grade,
+      construct_metrics.kind,
       type
       ;;
   }
@@ -55,48 +66,90 @@ view: VistaTypesPersonas {
   dimension: id {
     type: string
     sql: ${TABLE}.id ;;
-    description: "ID del participante"
   }
 
   dimension: name {
     type: string
     sql: ${TABLE}.name ;;
-    description: "Nombre del participante"
   }
 
   dimension: school {
     type: string
     sql: ${TABLE}.school ;;
-    description: "Nombre del colegio"
   }
 
   dimension: grade {
     type: string
     sql: ${TABLE}.grade ;;
-    description: "Grado escolar"
+  }
+
+  dimension: kind {
+    type: string
+    sql: ${TABLE}.kind ;;
+    description: "Nombre del constructo original de la métrica"
   }
 
   dimension: type {
     type: string
     sql: ${TABLE}.type ;;
-    description: "Tipo de personalidad"
+    description: "Tipo general de personalidad basado en el constructo"
   }
 
-  measure: value {
-    type: average
+  dimension: value {
+    type: number
     sql: ${TABLE}.value ;;
     value_format_name: "decimal_2"
-    description: "Promedio del valor para el tipo de personalidad"
+    description: "Valor promedio del constructo"
   }
 
-  set: detail {
+  dimension: development_status {
+    type: string
+    sql: ${TABLE}.development_status ;;
+    description: "Bajo, Medio o Alto según el valor promedio"
+  }
+
+  dimension: is_developed {
+    type: number
+    sql: ${TABLE}.is_developed ;;
+    description: "1 si la inteligencia está desarrollada (Medio o Alto), 0 si no"
+  }
+
+  measure: developed_count {
+    type: sum
+    sql: ${is_developed} ;;
+    description: "Número de inteligencias desarrolladas por persona"
+  }
+
+  measure: total_intelligences {
+    type: count
+    description: "Total de inteligencias evaluadas por persona"
+  }
+
+  measure: development_percentage {
+    type: number
+    sql: 100.0 * ${developed_count} / NULLIF(${total_intelligences}, 0) ;;
+    description: "Porcentaje de inteligencias desarrolladas por persona"
+    value_format_name: percent_1
+  }
+
+  set: intelligence_detail {
     fields: [
       id,
       name,
-      type,
+      kind,
       value,
-      school,
-      grade
+      development_status,
+      is_developed
+    ]
+  }
+
+  set: person_summary {
+    fields: [
+      id,
+      name,
+      developed_count,
+      total_intelligences,
+      development_percentage
     ]
   }
 }
