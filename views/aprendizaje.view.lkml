@@ -37,7 +37,8 @@ view: aprendizaje {
       pr.title AS project_title,
       cl.acronym AS client_acronym,
       sd.city,
-      sd.school
+      sd.school,
+      sd.grade
       FROM construct_metrics cm
       JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
       JOIN participants p ON p.id = cm.participant_id
@@ -49,7 +50,10 @@ view: aprendizaje {
       WHERE
       LOWER(c.name) LIKE '%aprendizaje%'
       AND LOWER(pr.title) LIKE '%vocacional%'
-      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
+      AND (
+      '{{ _user_attributes['client_acronym'] }}' = ''
+      OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+      )
       AND (
       '{{ _user_attributes['city'] }}' IS NULL
       OR '{{ _user_attributes['city'] }}' = ''
@@ -119,6 +123,11 @@ view: aprendizaje {
     sql: ${TABLE}.school ;;
   }
 
+  dimension: grade {
+    type: string
+    sql: ${TABLE}.grade ;;
+  }
+
   filter: has_development {
     type: yesno
     sql: ${TABLE}.has_meaningful_development ;;
@@ -161,7 +170,8 @@ view: aprendizaje {
       type_value,
       client_acronym,
       city,
-      school
+      school,
+      grade
     ]
   }
 }
