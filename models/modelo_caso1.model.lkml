@@ -586,7 +586,10 @@ explore: devices {
   {% endif %}
   {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
   AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
-  {% endif %};;
+  {% endif %}
+  AND ${participants.identification} <> 'Not Applicable'
+  AND ${participants.email} <> 'Not Applicable'
+  AND ${socio_demographics.school} <> 'Not Applicable';;
 }
 
 explore: discrimination_index {
@@ -810,7 +813,10 @@ explore: participants {
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
-    {% endif %};;
+    {% endif %}
+    AND ${participants.identification} <> 'Not Applicable'
+    AND ${participants.email} <> 'Not Applicable'
+    AND ${socio_demographics.school} <> 'Not Applicable';;
 }
 
 explore: predictive_correlation_coefficient {
@@ -1004,6 +1010,8 @@ explore: socio_demographics {
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
-    {% endif %};;
-
+    {% endif %}
+    AND ${participants.identification} <> 'Not Applicable'
+    AND ${participants.email} <> 'Not Applicable'
+    AND ${socio_demographics.school} <> 'Not Applicable';;
 }
