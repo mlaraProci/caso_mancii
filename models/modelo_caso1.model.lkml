@@ -1005,5 +1005,4 @@ explore: socio_demographics {
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
     {% endif %};;
-
 }
