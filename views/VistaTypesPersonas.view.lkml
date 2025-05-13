@@ -32,6 +32,7 @@ view: VistaTypesPersonas {
       JOIN construct_metrics ON construct_metrics.construct_id = constructs.id
       JOIN participants ON participants.id = construct_metrics.participant_id
       JOIN socio_demographics ON socio_demographics.participant_id = participants.id
+      LEFT JOIN sectionals ON socio_demographics.sectional_id = sectionals.id
       JOIN construct_metrics_decimal ON construct_metrics.id = construct_metrics_decimal.metric_id
       WHERE
         LOWER(TRIM(constructs.name)) LIKE '%personalidad%'
@@ -51,6 +52,11 @@ view: VistaTypesPersonas {
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''
       OR TRIM(LOWER(socio_demographics.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
+      AND (
+        '{{ _user_attributes['sectional'] }}' IS NULL
+        OR '{{ _user_attributes['sectional'] }}' = ''
+        OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
       )
       AND construct_metrics_decimal.value > 0
       GROUP BY

@@ -24,6 +24,7 @@ JOIN participants p ON p.id = cm.participant_id
 JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
 LEFT JOIN socio_demographics sd ON sd.participant_id = p.id
  `socio_demographics`
+LEFT JOIN sectionals ON socio_demographics.sectional_id = sectionals.id
 WHERE LOWER(TRIM(c.name)) LIKE '%inteligencias%'  -- Filtramos por el nombre del constructo
   AND cmd.value > 0  -- Filtramos valores mayores a 0
   AND LOWER(TRIM(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["client_acronym"] }}', '%'))  -- Filtro dinámico para el acrónimo del cliente
@@ -40,6 +41,11 @@ WHERE LOWER(TRIM(c.name)) LIKE '%inteligencias%'  -- Filtramos por el nombre del
     '{{ _user_attributes["school"] }}' IS NULL
     OR '{{ _user_attributes["school"] }}' = ''
     OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes["school"] }}', '%'))
+  )
+  AND (
+    '{{ _user_attributes['sectional'] }}' IS NULL
+    OR '{{ _user_attributes['sectional'] }}' = ''
+    OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
   )
 GROUP BY HEX(p.id), p.name, cm.kind, cmd.value
 

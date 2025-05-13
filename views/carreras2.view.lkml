@@ -12,6 +12,7 @@ view: carreras2 {
       JOIN `participants` p ON p.`id` = cm.`participant_id`
       JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
       JOIN `socio_demographics` sd ON p.`id` = sd.`participant_id` -- Relación con socio_demographics
+      LEFT JOIN `sectionals` ON socio_demographics.sectional_id = sectionals.id
       WHERE LOWER(TRIM(pr.`title`)) LIKE 'previous-test'
         AND LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
         AND cmd.`value` > 0
@@ -24,6 +25,11 @@ view: carreras2 {
             '' IS NULL
             OR '' = ''
             OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '', '%'))
+        )
+        AND (
+          '{{ _user_attributes['sectional'] }}' IS NULL
+          OR '{{ _user_attributes['sectional'] }}' = ''
+          OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
         )
       GROUP BY HEX(p.`id`), p.`name`, LOWER(TRIM(cm.`kind`))
     ;;

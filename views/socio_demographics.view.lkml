@@ -97,6 +97,13 @@ view: socio_demographics {
     sql: MANCII_RESULTS.socio_demographics.social_media ;;
 
   }
+
+  dimension: sectional_id {
+    type: string
+    # hidden: yes
+    sql: ${TABLE}.sectional_id ;;
+  }
+
   dimension_group: updated {
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]

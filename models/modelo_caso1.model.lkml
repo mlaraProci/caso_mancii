@@ -65,6 +65,8 @@ explore: estadisticas_agregadas_para_areas_de_conocimiento {}
 
 explore: estadisticas_agregadas_para_valores {}
 
+explore: sectionals {}
+
 ###############################################################
 explore: analysis_parameters {
   join: analysis_results {
@@ -563,6 +565,12 @@ explore: devices {
     relationship: one_to_many
   }
 
+  join: sectionals {
+    type:  left_outer
+    sql_on:  ${socio_demographics.sectional_id} = ${sectionals.id};;
+    relationship: one_to_many
+  }
+
   sql_always_where:
   ${clients.acronym} LIKE CONCAT('%',
   '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
@@ -586,6 +594,9 @@ explore: devices {
   {% endif %}
   {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
   AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+  {% endif %}
+  {% if _user_attributes['sectional'] != null and _user_attributes['sectional'] != "" %}
+  AND ${sectionals.name} LIKE CONCAT('%', '{{ _user_attributes['sectional'] | escape }}', '%')
   {% endif %};;
 }
 
@@ -787,6 +798,12 @@ explore: participants {
     relationship: one_to_many
   }
 
+  join: sectionals {
+    type:  left_outer
+    sql_on:  ${socio_demographics.sectional_id} = ${sectionals.id};;
+    relationship: one_to_many
+  }
+
   sql_always_where:
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
@@ -810,6 +827,9 @@ explore: participants {
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
+    {% endif %}
+    {% if _user_attributes['sectional'] != null and _user_attributes['sectional'] != "" %}
+      AND ${sectionals.name} LIKE CONCAT('%', '{{ _user_attributes['sectional'] | escape }}', '%')
     {% endif %};;
 }
 
@@ -981,6 +1001,12 @@ explore: socio_demographics {
     relationship: one_to_many
   }
 
+  join: sectionals {
+    type:  left_outer
+    sql_on:  ${socio_demographics.sectional_id} = ${sectionals.id};;
+    relationship: one_to_many
+  }
+
   sql_always_where:
     ${clients.acronym} LIKE CONCAT('%',
     '{% if _user_attributes['client_acronym'] %}{{ _user_attributes["client_acronym"] | escape }}{% else %}%%{% endif %}',
@@ -1004,5 +1030,9 @@ explore: socio_demographics {
     {% endif %}
     {% if _user_attributes['school'] != null and _user_attributes['school'] != "" %}
       AND ${socio_demographics.school} LIKE CONCAT('%', '{{ _user_attributes['school'] | escape }}', '%')
-    {% endif %};;
+    {% endif %}
+    {% if _user_attributes['sectional'] != null and _user_attributes['sectional'] != "" %}
+    AND ${sectionals.name} LIKE CONCAT('%', '{{ _user_attributes['sectional'] | escape }}', '%')
+    {% endif %}
+    ;;
 }

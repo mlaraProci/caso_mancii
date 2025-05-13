@@ -47,6 +47,7 @@ view: aprendizaje {
       JOIN project_clients pc ON pr.id = pc.project_id
       JOIN clients cl ON pc.client_id = cl.id
       LEFT JOIN socio_demographics sd ON p.id = sd.participant_id
+      LEFT JOIN sectionals ON sd.sectional_id = sectionals.id
       WHERE
       LOWER(c.name) LIKE '%aprendizaje%'
       AND LOWER(pr.title) LIKE '%vocacional%'
@@ -64,6 +65,11 @@ view: aprendizaje {
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''
       OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
+      AND (
+        '{{ _user_attributes['sectional'] }}' IS NULL
+        OR '{{ _user_attributes['sectional'] }}' = ''
+        OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
       )
       ;;
   }
