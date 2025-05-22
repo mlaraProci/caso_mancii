@@ -13,15 +13,18 @@ view: aprendizaje_tipos {
         END AS value_category,
         pr.title AS project_title,
         cl.id AS client_id,
-        cl.acronym AS client_acronym
-      FROM `clients` cl  -- Ahora partimos desde clients
-      JOIN `project_clients` pc ON cl.id = pc.client_id  -- Relación con proyectos
+        cl.acronym AS client_acronym,
+        sd.school AS school,
+        sd.grade AS grade
+      FROM `clients` cl
+      JOIN `project_clients` pc ON cl.id = pc.client_id
       JOIN `projects` pr ON pc.project_id = pr.id
       JOIN `constructs` c ON pr.id = c.project_id
       JOIN `construct_metrics` cm ON cm.construct_id = c.id
       JOIN `participants` p ON p.id = cm.participant_id
       JOIN `construct_metrics_decimal` cmd ON cm.id = cmd.metric_id
       LEFT JOIN `socio_demographics` sd ON p.id = sd.participant_id
+      LEFT JOIN `sectionals` ON sd.sectional_id = sectionals.id
       WHERE LOWER(TRIM(c.name)) LIKE '%personalidad%'
         AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
         {% if _user_attributes['city'] != null and _user_attributes['city'] != '' %}
@@ -38,8 +41,13 @@ view: aprendizaje_tipos {
           OR '{{ _user_attributes['school'] }}' = ''
           OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
         )
+        AND (
+          '{{ _user_attributes['sectional'] }}' IS NULL
+          OR '{{ _user_attributes['sectional'] }}' = ''
+          OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
+        )
         AND cmd.value > 0
-      GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acronym
+      GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acronym, sd.school, sd.grade
     ;;
   }
 
@@ -73,6 +81,18 @@ view: aprendizaje_tipos {
     description: "Clasificación del valor como Bajo, Medio o Alto"
   }
 
+  dimension: school {
+    type: string
+    sql: ${TABLE}.school ;;
+    description: "Colegio del participante"
+  }
+
+  dimension: grade {
+    type: string
+    sql: ${TABLE}.grade ;;
+    description: "Grado del participante"
+  }
+
   measure: count_low {
     type: sum
     sql: CASE WHEN ${value_category} = 'Bajo' THEN 1 ELSE NULL END ;;
@@ -104,6 +124,8 @@ view: aprendizaje_tipos {
       kind,
       value,
       value_category,
+      school,
+      grade,
       count_low,
       count_medium,
       count_high,

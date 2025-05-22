@@ -37,7 +37,8 @@ view: aprendizaje {
       pr.title AS project_title,
       cl.acronym AS client_acronym,
       sd.city,
-      sd.school
+      sd.school,
+      sd.grade
       FROM construct_metrics cm
       JOIN construct_metrics_decimal cmd ON cm.id = cmd.metric_id
       JOIN participants p ON p.id = cm.participant_id
@@ -46,10 +47,14 @@ view: aprendizaje {
       JOIN project_clients pc ON pr.id = pc.project_id
       JOIN clients cl ON pc.client_id = cl.id
       LEFT JOIN socio_demographics sd ON p.id = sd.participant_id
+      LEFT JOIN sectionals ON sd.sectional_id = sectionals.id
       WHERE
       LOWER(c.name) LIKE '%aprendizaje%'
       AND LOWER(pr.title) LIKE '%vocacional%'
-      AND ('{{ _user_attributes['client_acronym'] }}' = '' OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%')))
+      AND (
+      '{{ _user_attributes['client_acronym'] }}' = ''
+      OR TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
+      )
       AND (
       '{{ _user_attributes['city'] }}' IS NULL
       OR '{{ _user_attributes['city'] }}' = ''
@@ -60,6 +65,11 @@ view: aprendizaje {
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''
       OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+      )
+      AND (
+        '{{ _user_attributes['sectional'] }}' IS NULL
+        OR '{{ _user_attributes['sectional'] }}' = ''
+        OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
       )
       ;;
   }
@@ -119,6 +129,11 @@ view: aprendizaje {
     sql: ${TABLE}.school ;;
   }
 
+  dimension: grade {
+    type: string
+    sql: ${TABLE}.grade ;;
+  }
+
   filter: has_development {
     type: yesno
     sql: ${TABLE}.has_meaningful_development ;;
@@ -161,7 +176,8 @@ view: aprendizaje {
       type_value,
       client_acronym,
       city,
-      school
+      school,
+      grade
     ]
   }
 }

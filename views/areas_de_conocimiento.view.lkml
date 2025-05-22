@@ -13,6 +13,7 @@ JOIN `participants` p ON p.`id` = cm.`participant_id`
 JOIN `construct_metrics_decimal` cmd ON cm.`id` = cmd.`metric_id`
 JOIN `clients` cl ON prc.`client_id` = cl.`id`
 JOIN `socio_demographics` sd ON p.`id` = sd.`participant_id`
+LEFT JOIN `sectionals` ON sd.sectional_id = sectionals.id
 WHERE LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
   AND cmd.`value` > 0
   AND TRIM(LOWER(cl.acronym)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['client_acronym'] }}', '%'))
@@ -29,6 +30,11 @@ WHERE LOWER(TRIM(c.`name`)) LIKE '%areas de conocimiento%'
       '{{ _user_attributes['school'] }}' IS NULL
       OR '{{ _user_attributes['school'] }}' = ''
       OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
+  )
+  AND (
+    '{{ _user_attributes['sectional'] }}' IS NULL
+    OR '{{ _user_attributes['sectional'] }}' = ''
+    OR TRIM(LOWER(sectional.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
   )
 GROUP BY HEX(p.`id`), LOWER(TRIM(cm.`kind`))
  ;;

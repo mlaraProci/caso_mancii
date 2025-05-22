@@ -3,18 +3,28 @@ view: Types {
   derived_table: {
     sql:
      SELECT
+
+      SELECT
+
         HEX(p.id) AS id,
         p.name AS name,
         LOWER(TRIM(cm.kind)) AS kind,
         cmd.value AS value,
         CASE
+
             WHEN cmd.value = 0 THEN 'Bajo'
             WHEN cmd.value = 5 THEN 'Medio'
             ELSE 'Alto'
+
+          WHEN cmd.value = 0 THEN 'Bajo'
+          WHEN cmd.value = 5 THEN 'Medio'
+          ELSE 'Alto'
+
         END AS value_category,
         pr.title AS project_title,
         cl.id AS client_id,
         cl.acronym AS client_acronym,
+
         sd.city AS city,
         sd.country AS country,
         sd.school AS school,
@@ -49,6 +59,7 @@ view: Types {
       )
       AND cmd.value > 0
     GROUP BY HEX(p.id), p.name, kind, value, value_category, pr.title, cl.id, cl.acronym, sd.city, sd.country, sd.school, sd.grade;;
+
   }
 
   dimension: id {
@@ -138,6 +149,12 @@ view: Types {
     type: sum
     sql: ${value} ;;
     description: "Suma total de los valores de inteligencia"
+  }
+
+  dimension_group: created {
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: ${TABLE}.created_at ;;
   }
 
   set: detail {

@@ -8,6 +8,7 @@ view: type_of_learning {
          FROM construct_metrics cm2
          JOIN participants pt ON pt.id = cm2.participant_id
          JOIN socio_demographics sd ON sd.participant_id = pt.id
+         LEFT JOIN sectionals ON
          JOIN construct_metrics_decimal cmd2 ON cm2.id = cmd2.metric_id
          JOIN constructs c2 ON cm2.construct_id = c2.id
          JOIN projects pr2 ON c2.project_id = pr2.id
@@ -31,6 +32,11 @@ view: type_of_learning {
                 OR '{{ _user_attributes['school'] }}' = ''
                 OR TRIM(LOWER(sd.school)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['school'] }}', '%'))
              )
+            AND (
+          '{{ _user_attributes['sectional'] }}' IS NULL
+          OR '{{ _user_attributes['sectional'] }}' = ''
+          OR TRIM(LOWER(sectionals.name)) LIKE LOWER(CONCAT('%', '{{ _user_attributes['sectional'] }}', '%'))
+        )
         ) AS total_count
     FROM
         construct_metrics cm
