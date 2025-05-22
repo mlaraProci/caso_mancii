@@ -22,6 +22,11 @@ explore: aprendizaje {}
 
 explore: personalidad2 {}
 
+explore: parent_responses {
+  view_name: parent_responses
+}
+
+
 explore: areas_de_conocimientov2 {
 }
 explore: areas_de_conocimientov3 {
