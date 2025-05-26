@@ -50,7 +50,7 @@ explore: contact {}
 
 explore: inteligencias {}
 
-explore: Types{}
+explore: Types {}
 
 explore: aprendizaje_tipos{}
 
